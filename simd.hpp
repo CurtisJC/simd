@@ -12,7 +12,7 @@
 
 namespace simd {
 
-    //__m128i __mm_mul_epi8(__m128i a, __m128i b)
+    //__m128i _mm_mul_epi8(__m128i a, __m128i b)
     //{
     //    __m128i mask = _mm_set1_epi16(0xff00);
     //    // mask higher bytes:
@@ -34,7 +34,7 @@ namespace simd {
     //    return _mm_or_si128(r_hi, r_lo);
     //}
 //
-    //__m128i __mm_mul_epu16(__m128i a, __m128i b)
+    //__m128i _mm_mul_epu16(__m128i a, __m128i b)
     //{
     //    // Convert the input integers to unsigned 32-bit integers.
     //    __m128i a_u32 = _mm_cvtpu16_epi32(a);
@@ -47,7 +47,7 @@ namespace simd {
     //    return _mm_cvtepi32_epi16(product);
     //}
 //
-    //__m128i __mm_mul_epi16(__m128i a, __m128i b)
+    //__m128i _mm_mul_epi16(__m128i a, __m128i b)
     //{
     //    // Perform high-order and low-order multiplications.
     //    __m128i high = _mm_mulhi_epi16(a, b);
@@ -84,22 +84,22 @@ namespace simd {
     {
         if constexpr (std::is_same_v<V, __m128i>)
         {
-            if constexpr (std::is_same_v<T, uint8_t> || std::is_same_v<T, int8_t>)        { return _mm_add_epi8(a, b); }
-            else if constexpr (std::is_same_v<T, uint16_t> || std::is_same_v<T, int16_t>) { return _mm_add_epi16(a, b); }
-            else if constexpr (std::is_same_v<T, uint32_t> || std::is_same_v<T, int32_t>) { return _mm_add_epi32(a, b); }
-            else if constexpr (std::is_same_v<T, uint64_t> || std::is_same_v<T, int64_t>) { return _mm_add_epi64(a, b); }
+            if constexpr (std::is_same_v<T, uint8_t> || std::is_same_v<T, int8_t>)        { return _mm_add_epi8(a, b); }  // SSE2
+            else if constexpr (std::is_same_v<T, uint16_t> || std::is_same_v<T, int16_t>) { return _mm_add_epi16(a, b); } // SSE2
+            else if constexpr (std::is_same_v<T, uint32_t> || std::is_same_v<T, int32_t>) { return _mm_add_epi32(a, b); } // SSE2
+            else if constexpr (std::is_same_v<T, uint64_t> || std::is_same_v<T, int64_t>) { return _mm_add_epi64(a, b); } // SSE2
         }
-        else if constexpr (std::is_same_v<V, __m128>)  { return _mm_add_ps(a, b); }
-        else if constexpr (std::is_same_v<V, __m128d>) { return _mm_add_pd(a, b); }
+        else if constexpr (std::is_same_v<V, __m128>)  { return _mm_add_ps(a, b); } // SSE
+        else if constexpr (std::is_same_v<V, __m128d>) { return _mm_add_pd(a, b); } // SSE2
         else if constexpr (std::is_same_v<V, __m256i>)
         {
-            if constexpr (std::is_same_v<T, uint8_t> || std::is_same_v<T, int8_t>)        { return _mm256_add_epi8(a, b); }
-            else if constexpr (std::is_same_v<T, uint16_t> || std::is_same_v<T, int16_t>) { return _mm256_add_epi16(a, b); }
-            else if constexpr (std::is_same_v<T, uint32_t> || std::is_same_v<T, int32_t>) { return _mm256_add_epi32(a, b); }
-            else if constexpr (std::is_same_v<T, uint64_t> || std::is_same_v<T, int64_t>) { return _mm256_add_epi64(a, b); }
+            if constexpr (std::is_same_v<T, uint8_t> || std::is_same_v<T, int8_t>)        { return _mm256_add_epi8(a, b); }  // AVX2
+            else if constexpr (std::is_same_v<T, uint16_t> || std::is_same_v<T, int16_t>) { return _mm256_add_epi16(a, b); } // AVX2
+            else if constexpr (std::is_same_v<T, uint32_t> || std::is_same_v<T, int32_t>) { return _mm256_add_epi32(a, b); } // AVX2
+            else if constexpr (std::is_same_v<T, uint64_t> || std::is_same_v<T, int64_t>) { return _mm256_add_epi64(a, b); } // AVX2
         }
-        else if constexpr (std::is_same_v<V, __m256>)  { return _mm256_add_ps(a, b); }
-        else if constexpr (std::is_same_v<V, __m256d>) { return _mm256_add_pd(a, b); }
+        else if constexpr (std::is_same_v<V, __m256>)  { return _mm256_add_ps(a, b); } // AVX
+        else if constexpr (std::is_same_v<V, __m256d>) { return _mm256_add_pd(a, b); } // AVX
     }
 
     template<typename T, typename V>
@@ -107,22 +107,22 @@ namespace simd {
     {
         if constexpr (std::is_same_v<V, __m128i>)
         {
-            if constexpr (std::is_same_v<T, uint8_t> || std::is_same_v<T, int8_t>)        { return _mm_sub_epi8(a, b); }
-            else if constexpr (std::is_same_v<T, uint16_t> || std::is_same_v<T, int16_t>) { return _mm_sub_epi16(a, b); }
-            else if constexpr (std::is_same_v<T, uint32_t> || std::is_same_v<T, int32_t>) { return _mm_sub_epi32(a, b); }
-            else if constexpr (std::is_same_v<T, uint64_t> || std::is_same_v<T, int64_t>) { return _mm_sub_epi64(a, b); }
+            if constexpr (std::is_same_v<T, uint8_t> || std::is_same_v<T, int8_t>)        { return _mm_sub_epi8(a, b); }  // SSE2
+            else if constexpr (std::is_same_v<T, uint16_t> || std::is_same_v<T, int16_t>) { return _mm_sub_epi16(a, b); } // SSE2
+            else if constexpr (std::is_same_v<T, uint32_t> || std::is_same_v<T, int32_t>) { return _mm_sub_epi32(a, b); } // SSE2
+            else if constexpr (std::is_same_v<T, uint64_t> || std::is_same_v<T, int64_t>) { return _mm_sub_epi64(a, b); } // SSE2
         }
-        else if constexpr (std::is_same_v<V, __m128>)  { return _mm_sub_ps(a, b); }
-        else if constexpr (std::is_same_v<V, __m128d>) { return _mm_sub_pd(a, b); }
+        else if constexpr (std::is_same_v<V, __m128>)  { return _mm_sub_ps(a, b); } // SSE
+        else if constexpr (std::is_same_v<V, __m128d>) { return _mm_sub_pd(a, b); } // SSE2
         else if constexpr (std::is_same_v<V, __m256i>)
         {
-            if constexpr (std::is_same_v<T, uint8_t> || std::is_same_v<T, int8_t>)        { return _mm256_sub_epi8(a, b); }
-            else if constexpr (std::is_same_v<T, uint16_t> || std::is_same_v<T, int16_t>) { return _mm256_sub_epi16(a, b); }
-            else if constexpr (std::is_same_v<T, uint32_t> || std::is_same_v<T, int32_t>) { return _mm256_sub_epi32(a, b); }
-            else if constexpr (std::is_same_v<T, uint64_t> || std::is_same_v<T, int64_t>) { return _mm256_sub_epi64(a, b); }
+            if constexpr (std::is_same_v<T, uint8_t> || std::is_same_v<T, int8_t>)        { return _mm256_sub_epi8(a, b); }  // AVX2
+            else if constexpr (std::is_same_v<T, uint16_t> || std::is_same_v<T, int16_t>) { return _mm256_sub_epi16(a, b); } // AVX2
+            else if constexpr (std::is_same_v<T, uint32_t> || std::is_same_v<T, int32_t>) { return _mm256_sub_epi32(a, b); } // AVX2
+            else if constexpr (std::is_same_v<T, uint64_t> || std::is_same_v<T, int64_t>) { return _mm256_sub_epi64(a, b); } // AVX2
         }
-        else if constexpr (std::is_same_v<V, __m256>)  { return _mm256_sub_ps(a, b); }
-        else if constexpr (std::is_same_v<V, __m256d>) { return _mm256_sub_pd(a, b); }
+        else if constexpr (std::is_same_v<V, __m256>)  { return _mm256_sub_ps(a, b); } // AVX
+        else if constexpr (std::is_same_v<V, __m256d>) { return _mm256_sub_pd(a, b); } // AVX
     }
 
     template<typename T, typename V>
@@ -130,42 +130,27 @@ namespace simd {
     {
         if constexpr (std::is_same_v<V, __m128i>)
         {
-            if constexpr (std::is_same_v<T, uint8_t>)
-            {
-                // TODO: __mm_mul_epu8
-            }
-            else if constexpr (std::is_same_v<T, int8_t>)   { return __mm_mul_epi8(a, b); }
-            else if constexpr (std::is_same_v<T, uint16_t>) { return _mm_mul_epu16(a, b); }
-            else if constexpr (std::is_same_v<T, int16_t>)  { return _mm_mul_epi16(a, b); }
-            else if constexpr (std::is_same_v<T, uint32_t>) { return _mm_mul_epi32(a, b); }
-            else if constexpr (std::is_same_v<T, int32_t>)  { return _mm_mul_epu32(a, b); }
-            else if constexpr (std::is_same_v<T, uint64_t> || std::is_same_v<T, int64_t>)
-            {
-                // TODO: _mm_mul_epu64
-                // TODO: _mm_mul_epi64
-            }
+            if constexpr (std::is_same_v<T, uint8_t>)       { return _mm_mul_epu8(a, b); } // TODO
+            else if constexpr (std::is_same_v<T, int8_t>)   { return _mm_mul_epi8(a, b); } // TODO
+            else if constexpr (std::is_same_v<T, uint16_t>) { return _mm_mul_epu16(a, b); } // TODO
+            else if constexpr (std::is_same_v<T, int16_t>)  { return _mm_mullo_epi16(a, b); } // SSE2
+            else if constexpr (std::is_same_v<T, uint32_t>) { return _mm_mul_epu32(a, b); } // TODO
+            else if constexpr (std::is_same_v<T, int32_t>)  { return _mm_mullo_epi32(a, b); } // SSE4.1
+            else if constexpr (std::is_same_v<T, uint64_t>) { return _mm_mul_epu64(a, b); } // TODO
+            else if constexpr (std::is_same_v<T, int64_t>)  { return _mm_mullo_epi64(a, b); } // AVX512DQ + AVX512VL
         }
         else if constexpr (std::is_same_v<V, __m128>)  { return _mm_mul_ps(a, b); }
         else if constexpr (std::is_same_v<V, __m128d>) { return _mm_mul_pd(a, b); }
         else if constexpr (std::is_same_v<V, __m256i>)
         {
-            if constexpr (std::is_same_v<T, uint8_t> || std::is_same_v<T, int8_t>)
-            {
-                // TODO: _mm256_mul_epu8(a, b);
-                // TODO: _mm256_mul_epi8(a, b);
-            }
-            else if constexpr (std::is_same_v<T, uint16_t> || std::is_same_v<T, int16_t>)
-            {
-                // TODO: _mm256_mul_epu16
-                // TODO: _mm256_mul_epi16
-            }
-            else if constexpr (std::is_same_v<T, uint32_t>)     { return _mm256_mul_epi32(a, b); }
-            else if constexpr (std::is_same_v<T, int32_t>) { return _mm256_mul_epu32(a, b); }
-            else if constexpr (std::is_same_v<T, uint64_t> || std::is_same_v<T, int64_t>)
-            {
-                // TODO: _mm256_mul_epu64(a, b);
-                // TODO: _mm256_mul_epi64(a, b);
-            }
+            if constexpr (std::is_same_v<T, uint8_t>)       { return _mm256_mul_epu8(a, b); } // TODO
+            else if constexpr (std::is_same_v<T, int8_t>)   { return _mm256_mul_epi8(a, b); } // TODO
+            else if constexpr (std::is_same_v<T, uint16_t>) { return _mm256_mul_epu16(a, b); } // TODO
+            else if constexpr (std::is_same_v<T, int16_t>)  { return _mm256_mullo_epi16(a, b); } // AVX2
+            else if constexpr (std::is_same_v<T, uint32_t>) { return _mm256_mul_epu32(a, b); } // TODO
+            else if constexpr (std::is_same_v<T, int32_t>)  { return _mm256_mullo_epi32(a, b); } // AVX2
+            else if constexpr (std::is_same_v<T, uint64_t>) { return _mm256_mul_epu64(a, b); } // TODO
+            else if constexpr (std::is_same_v<T, int64_t>)  { return _mm256_mullo_epi64(a, b); } // AVX512DQ + AVX512VL
         }
         else if constexpr (std::is_same_v<V, __m256>)  { return _mm256_mul_ps(a, b); }
         else if constexpr (std::is_same_v<V, __m256d>) { return _mm256_mul_pd(a, b); }
@@ -176,30 +161,30 @@ namespace simd {
     {
         if constexpr (std::is_same_v<V, __m128i>)
         {
-            if constexpr (std::is_same_v<T, uint8_t>)       { return _mm_div_epu8(a, b); }
-            else if constexpr (std::is_same_v<T, int8_t>)   { return _mm_div_epi8(a, b); }
-            else if constexpr (std::is_same_v<T, uint16_t>) { return _mm_div_epi16(a, b); }
-            else if constexpr (std::is_same_v<T, int16_t>)  { return _mm_div_epu16(a, b); }
-            else if constexpr (std::is_same_v<T, uint32_t>) { return _mm_div_epi32(a, b); }
-            else if constexpr (std::is_same_v<T, int32_t>)  { return _mm_div_epu32(a, b); }
-            else if constexpr (std::is_same_v<T, uint64_t>) { return _mm_div_epu64(a, b); }
-            else if constexpr (std::is_same_v<T, int64_t>)  { return _mm_div_epi64(a, b); }
+            if constexpr (std::is_same_v<T, uint8_t>)       { return _mm_div_epu8(a, b); }  // SSE
+            else if constexpr (std::is_same_v<T, int8_t>)   { return _mm_div_epi8(a, b); }  // SSE
+            else if constexpr (std::is_same_v<T, uint16_t>) { return _mm_div_epu16(a, b); } // SSE
+            else if constexpr (std::is_same_v<T, int16_t>)  { return _mm_div_epi16(a, b); } // SSE
+            else if constexpr (std::is_same_v<T, uint32_t>) { return _mm_div_epu32(a, b); } // SSE
+            // else if constexpr (std::is_same_v<T, int32_t>)  { return _mm_div_epi32(a, b); } // SSE - FAIL
+            else if constexpr (std::is_same_v<T, uint64_t>) { return _mm_div_epu64(a, b); } // SSE
+            else if constexpr (std::is_same_v<T, int64_t>)  { return _mm_div_epi64(a, b); } // SSE
         }
-        else if constexpr (std::is_same_v<V, __m128>)  { return _mm_div_ps(a, b); }
-        else if constexpr (std::is_same_v<V, __m128d>) { return _mm_div_pd(a, b); }
+        else if constexpr (std::is_same_v<V, __m128>)  { return _mm_div_ps(a, b); } // SSE
+        else if constexpr (std::is_same_v<V, __m128d>) { return _mm_div_pd(a, b); } // SSE2
         else if constexpr (std::is_same_v<V, __m256i>)
         {
-            if constexpr (std::is_same_v<T, uint8_t>)       { return _mm256_div_epu8(a, b); }
-            else if constexpr (std::is_same_v<T, int8_t>)   { return _mm256_div_epi8(a, b); }
-            else if constexpr (std::is_same_v<T, uint16_t>) { return _mm256_div_epi16(a, b); }
-            else if constexpr (std::is_same_v<T, int16_t>)  { return _mm256_div_epu16(a, b); }
-            else if constexpr (std::is_same_v<T, uint32_t>) { return _mm256_div_epi32(a, b); }
-            else if constexpr (std::is_same_v<T, int32_t>)  { return _mm256_div_epu32(a, b); }
-            else if constexpr (std::is_same_v<T, uint64_t>) { return _mm256_div_epu64(a, b); }
-            else if constexpr (std::is_same_v<T, int64_t>)  { return _mm256_div_epi64(a, b); }
+            if constexpr (std::is_same_v<T, uint8_t>)       { return _mm256_div_epu8(a, b); }  // AVX
+            else if constexpr (std::is_same_v<T, int8_t>)   { return _mm256_div_epi8(a, b); }  // AVX
+            else if constexpr (std::is_same_v<T, uint16_t>) { return _mm256_div_epu16(a, b); } // AVX
+            else if constexpr (std::is_same_v<T, int16_t>)  { return _mm256_div_epi16(a, b); } // AVX
+            else if constexpr (std::is_same_v<T, uint32_t>) { return _mm256_div_epu32(a, b); } // AVX
+            // else if constexpr (std::is_same_v<T, int32_t>)  { return _mm256_div_epi32(a, b); } // AVX - FAIL
+            else if constexpr (std::is_same_v<T, uint64_t>) { return _mm256_div_epu64(a, b); } // AVX
+            else if constexpr (std::is_same_v<T, int64_t>)  { return _mm256_div_epi64(a, b); } // AVX
         }
-        else if constexpr (std::is_same_v<V, __m256>)  { return _mm256_div_ps(a, b); }
-        else if constexpr (std::is_same_v<V, __m256d>) { return _mm256_div_pd(a, b); }
+        else if constexpr (std::is_same_v<V, __m256>)  { return _mm256_div_ps(a, b); } // AVX
+        else if constexpr (std::is_same_v<V, __m256d>) { return _mm256_div_pd(a, b); } // AVX
     }
 
     template<typename T, typename V, size_t N = sizeof(V)/sizeof(T)>
@@ -273,36 +258,127 @@ namespace simd {
         array() = default;
         array(const std::array<T, N> &local) : vec(local) {};
 
+        template<typename V>
+        void simd_loop(size_t &i, std::array<T, N> &a, std::array<T, N> &b, std::array<T, N> &c, auto lamba_op)
+        {
+            const size_t VN = sizeof(V)/sizeof(T);
+            for (; i < N - VN; i += VN)
+            {
+                V va = load<V>(&a[i]);
+                V vb = load<V>(&b[i]);
+                store<V>(&c[i], lamba_op(va, vb));
+            }
+        }
+
+        #ifdef __AVX2__ 
+            #define SIMD_LOOP(op) \
+                simd_loop<__m256i>(i, vec, other.vec, result, [](__m256i a, __m256i b){ return op<T, __m256i>(a, b); }); \
+                simd_loop<__m128i>(i, vec, other.vec, result, [](__m128i a, __m128i b){ return op<T, __m128i>(a, b); });
+        #else
+            #define SIMD_LOOP(op) \
+                simd_loop<__m128i>(i, vec, other.vec, result, [](__m128i a, __m128i b){ return op<T, __m128i>(a, b); });
+        #endif // __AVX2__
+
         std::array<T, N> operator+(array& other)
         {
             std::array<T, N> result;
             size_t i = 0;
             if constexpr (std::is_integral<T>::value)
             {
-                #ifdef __AVX2__
-                {
-                    using __m = __m256i;
-                    const size_t VN = sizeof(__m)/sizeof(T);
-                    for (; i < N - VN; i += VN) {
-                        __m a = load<__m>(&vec[i]);
-                        __m b = load<__m>(&other.vec[i]);
-                        store<__m>(&result[i], add<T, __m>(a, b));
-                    }
-                }
-                #endif // __AVX2__
-                {
-                    using __m = __m128i;
-                    const size_t VN = sizeof(__m)/sizeof(T);
-                    for (; i < N - VN; i += VN) {
-                        __m a = load<__m>(&vec[i]);
-                        __m b = load<__m>(&other.vec[i]);
-                        store<__m>(&result[i], add<T, __m>(a, b));
-                    }
-                }
+                SIMD_LOOP(add);
+            }
+            else if constexpr (std::is_same<T, float>::value)
+            {
+                simd_loop<__m256>(i, vec, other.vec, result, [](__m256 a, __m256 b){ return add<T, __m256>(a, b); });
+                simd_loop<__m128>(i, vec, other.vec, result, [](__m128 a, __m128 b){ return add<T, __m128>(a, b); });
+            }
+            else if constexpr (std::is_same<T, double>::value)
+            {
+                simd_loop<__m256d>(i, vec, other.vec, result, [](__m256d a, __m256d b){ return add<T, __m256d>(a, b); });
+                simd_loop<__m128d>(i, vec, other.vec, result, [](__m128d a, __m128d b){ return add<T, __m128d>(a, b); });
             }
 
-            for (; i < N; i++) {
+            for (; i < N; i++)
+            {
                 result[i] = vec[i] + other.vec[i];
+            }
+            return result;
+        }
+
+        std::array<T, N> operator-(array& other)
+        {
+            std::array<T, N> result;
+            size_t i = 0;
+            if constexpr (std::is_integral<T>::value)
+            {
+                SIMD_LOOP(sub);
+            }
+            else if constexpr (std::is_same<T, float>::value)
+            {
+                simd_loop<__m256>(i, vec, other.vec, result, [](__m256 a, __m256 b){ return sub<T, __m256>(a, b); });
+                simd_loop<__m128>(i, vec, other.vec, result, [](__m128 a, __m128 b){ return sub<T, __m128>(a, b); });
+            }
+            else if constexpr (std::is_same<T, double>::value)
+            {
+                simd_loop<__m256d>(i, vec, other.vec, result, [](__m256d a, __m256d b){ return sub<T, __m256d>(a, b); });
+                simd_loop<__m128d>(i, vec, other.vec, result, [](__m128d a, __m128d b){ return sub<T, __m128d>(a, b); });
+            }
+
+            for (; i < N; i++)
+            {
+                result[i] = vec[i] - other.vec[i];
+            }
+            return result;
+        }
+
+        std::array<T, N> operator*(array& other)
+        {
+            std::array<T, N> result;
+            size_t i = 0;
+            if constexpr (std::is_integral<T>::value)
+            {
+                SIMD_LOOP(mul);
+            }
+            else if constexpr (std::is_same<T, float>::value)
+            {
+                simd_loop<__m256>(i, vec, other.vec, result, [](__m256 a, __m256 b){ return mul<T, __m256>(a, b); });
+                simd_loop<__m128>(i, vec, other.vec, result, [](__m128 a, __m128 b){ return mul<T, __m128>(a, b); });
+            }
+            else if constexpr (std::is_same<T, double>::value)
+            {
+                simd_loop<__m256d>(i, vec, other.vec, result, [](__m256d a, __m256d b){ return mul<T, __m256d>(a, b); });
+                simd_loop<__m128d>(i, vec, other.vec, result, [](__m128d a, __m128d b){ return mul<T, __m128d>(a, b); });
+            }
+
+            for (; i < N; i++)
+            {
+                result[i] = vec[i] * other.vec[i];
+            }
+            return result;
+        }
+
+        std::array<T, N> operator/(array& other)
+        {
+            std::array<T, N> result;
+            size_t i = 0;
+            if constexpr (std::is_integral<T>::value)
+            {
+                SIMD_LOOP(div);
+            }
+            else if constexpr (std::is_same<T, float>::value)
+            {
+                simd_loop<__m256>(i, vec, other.vec, result, [](__m256 a, __m256 b){ return div<T, __m256>(a, b); });
+                simd_loop<__m128>(i, vec, other.vec, result, [](__m128 a, __m128 b){ return div<T, __m128>(a, b); });
+            }
+            else if constexpr (std::is_same<T, double>::value)
+            {
+                simd_loop<__m256d>(i, vec, other.vec, result, [](__m256d a, __m256d b){ return div<T, __m256d>(a, b); });
+                simd_loop<__m128d>(i, vec, other.vec, result, [](__m128d a, __m128d b){ return div<T, __m128d>(a, b); });
+            }
+
+            for (; i < N; i++)
+            {
+                result[i] = vec[i] / other.vec[i];
             }
             return result;
         }
