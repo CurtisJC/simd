@@ -4,59 +4,58 @@
 
 #pragma once
 
-#include <cstdint>
+#include <stdint.h>
 #include <array>
-#include <string>
 #include <type_traits>
 #include <immintrin.h>
 
 
 namespace simd {
 
-    __m128i __mm_mul_epi8(__m128i a, __m128i b)
-    {
-        __m128i mask = _mm_set1_epi16(0xff00);
-        // mask higher bytes:
-        __m128i a_hi = _mm_and_si128(a, mask);
-        __m128i b_hi = _mm_and_si128(b, mask);
-
-        __m128i r_hi = _mm_mulhi_epi16(a_hi, b_hi);
-        // mask out garbage in lower half:
-        r_hi = _mm_and_si128(r_hi, mask);
-
-        // shift lower bytes to upper half
-        __m128i a_lo = _mm_slli_epi16(a,8);
-        __m128i b_lo = _mm_slli_epi16(b,8);
-        __m128i r_lo = _mm_mulhi_epi16(a_lo, b_lo);
-        // shift result to the lower half:
-        r_lo = _mm_srli_epi16(r_lo,8);
-
-        // join result and return:
-        return _mm_or_si128(r_hi, r_lo);
-    }
-
-    __m128i __mm_mul_epu16(__m128i a, __m128i b)
-    {
-        // Convert the input integers to unsigned 32-bit integers.
-        __m128i a_u32 = _mm_cvtpu16_epi32(a);
-        __m128i b_u32 = _mm_cvtpu16_epi32(b);
-
-        // Multiply the two integers using the _mm_mul_epi32 intrinsic.
-        __m128i product = _mm_mul_epi32(a_u32, b_u32);
-
-        // Convert the product back to unsigned 16-bit integers.
-        return _mm_cvtepi32_epi16(product);
-    }
-
-    __m128i __mm_mul_epi16(__m128i a, __m128i b)
-    {
-        // Perform high-order and low-order multiplications.
-        __m128i high = _mm_mulhi_epi16(a, b);
-        __m128i low = _mm_mullo_epi16(a, b);
-
-        // Combine the high-order and low-order products.
-        return _mm_add_epi16(high, _mm_slli_epi16(low, 16));
-    }
+    //__m128i __mm_mul_epi8(__m128i a, __m128i b)
+    //{
+    //    __m128i mask = _mm_set1_epi16(0xff00);
+    //    // mask higher bytes:
+    //    __m128i a_hi = _mm_and_si128(a, mask);
+    //    __m128i b_hi = _mm_and_si128(b, mask);
+//
+    //    __m128i r_hi = _mm_mulhi_epi16(a_hi, b_hi);
+    //    // mask out garbage in lower half:
+    //    r_hi = _mm_and_si128(r_hi, mask);
+//
+    //    // shift lower bytes to upper half
+    //    __m128i a_lo = _mm_slli_epi16(a,8);
+    //    __m128i b_lo = _mm_slli_epi16(b,8);
+    //    __m128i r_lo = _mm_mulhi_epi16(a_lo, b_lo);
+    //    // shift result to the lower half:
+    //    r_lo = _mm_srli_epi16(r_lo,8);
+//
+    //    // join result and return:
+    //    return _mm_or_si128(r_hi, r_lo);
+    //}
+//
+    //__m128i __mm_mul_epu16(__m128i a, __m128i b)
+    //{
+    //    // Convert the input integers to unsigned 32-bit integers.
+    //    __m128i a_u32 = _mm_cvtpu16_epi32(a);
+    //    __m128i b_u32 = _mm_cvtpu16_epi32(b);
+//
+    //    // Multiply the two integers using the _mm_mul_epi32 intrinsic.
+    //    __m128i product = _mm_mul_epi32(a_u32, b_u32);
+//
+    //    // Convert the product back to unsigned 16-bit integers.
+    //    return _mm_cvtepi32_epi16(product);
+    //}
+//
+    //__m128i __mm_mul_epi16(__m128i a, __m128i b)
+    //{
+    //    // Perform high-order and low-order multiplications.
+    //    __m128i high = _mm_mulhi_epi16(a, b);
+    //    __m128i low = _mm_mullo_epi16(a, b);
+//
+    //    // Combine the high-order and low-order products.
+    //    return _mm_add_epi16(high, _mm_slli_epi16(low, 16));
+    //}
 
     template<typename V>
     V load(void *mem_addr)
@@ -225,7 +224,7 @@ namespace simd {
 
         __SIMDVec& operator +=(const __SIMDVec &other) 
         {
-            vec = __SIMDVec(add<T, V>(vec, other.vec))
+            vec = __SIMDVec(add<T, V>(vec, other.vec));
             return *this;
         }
 
@@ -247,7 +246,7 @@ namespace simd {
 
         __SIMDVec& operator *=(const __SIMDVec &other)
         {
-            vec = __SIMDVec(mul<T, V>(vec, other.vec))
+            vec = __SIMDVec(mul<T, V>(vec, other.vec));
             return *this;
         }
 
@@ -265,6 +264,48 @@ namespace simd {
     private:
 
         V vec;
+    };
+
+    template <typename T, size_t N>
+    struct array {
+        std::array<T, N> vec;
+
+        array() = default;
+        array(const std::array<T, N> &local) : vec(local) {};
+
+        std::array<T, N> operator+(array& other)
+        {
+            std::array<T, N> result;
+            size_t i = 0;
+            if constexpr (std::is_integral<T>::value)
+            {
+                #ifdef __AVX2__
+                {
+                    using __m = __m256i;
+                    const size_t VN = sizeof(__m)/sizeof(T);
+                    for (; i < N - VN; i += VN) {
+                        __m a = load<__m>(&vec[i]);
+                        __m b = load<__m>(&other.vec[i]);
+                        store<__m>(&result[i], add<T, __m>(a, b));
+                    }
+                }
+                #endif // __AVX2__
+                {
+                    using __m = __m128i;
+                    const size_t VN = sizeof(__m)/sizeof(T);
+                    for (; i < N - VN; i += VN) {
+                        __m a = load<__m>(&vec[i]);
+                        __m b = load<__m>(&other.vec[i]);
+                        store<__m>(&result[i], add<T, __m>(a, b));
+                    }
+                }
+            }
+
+            for (; i < N; i++) {
+                result[i] = vec[i] + other.vec[i];
+            }
+            return result;
+        }
     };
 
 #ifdef __SSE2__
