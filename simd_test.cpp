@@ -146,9 +146,25 @@ int main ()
     std::array<float, 20> result2 = simd_int_array1 - simd_int_array2;
     std::array<float, 20> result3 = simd_int_array1 * simd_int_array2;
     std::array<float, 20> result4 = simd_int_array1 / simd_int_array2;
+    std::array<float, 20> result5 = simd_int_array2 + 10;
+    std::array<float, 20> result6 = 20.0f + simd_int_array2;
+    std::array<float, 20> result7 = simd_int_array2 - 10;
+    std::array<float, 20> result8 = 20.0f - simd_int_array2;
+    std::array<float, 20> result9 = simd_int_array2 * 10;
+    std::array<float, 20> result10 = 20.0f * simd_int_array2;
+    std::array<float, 20> result11 = simd_int_array2 / 10;
+    std::array<float, 20> result12 = 20.0f / simd_int_array2;
 
     print_array(result1);
     print_array(result2);
     print_array(result3);
     print_array(result4);
+    print_array(result5);
+    print_array(result6);
+    print_array(result7);
+    print_array(result8);
+    print_array(result9);
+    print_array(result10);
+    print_array(result11);
+    print_array(result12);
 }
