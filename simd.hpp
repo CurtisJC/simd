@@ -5,4 +5,4 @@
 #pragma once
 
 #include "simd_vector_types.hpp"
-#include "simd_array.hpp"
+#include "simd_vector.hpp"

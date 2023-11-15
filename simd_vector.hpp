@@ -13,27 +13,27 @@
 
 namespace simd {
     template <typename T, size_t N>
-    class array {
+    class vector {
     private:
         std::array<T, N> data;
 
     public:
-        array() = default;
-        ~array() = default;
+        vector() = default;
+        ~vector() = default;
 
-        explicit array(std::array<T, N> const& std_array) : data(std_array) {}
+        explicit vector(std::array<T, N> const& std_array) : data(std_array) {}
 
-        array(const array& other) : array(other.data) {}
+        vector(const vector& other) : vector(other.data) {}
 
-        array(array&& other) noexcept : data(std::move(other.data)) {
+        vector(vector&& other) noexcept : data(std::move(other.data)) {
             other.data.fill(T());
         }
 
-        array& operator=(const array& other) {
-            return *this = array(other);
+        vector& operator=(const vector& other) {
+            return *this = vector(other);
         }
 
-        array& operator=(array&& other) noexcept {
+        vector& operator=(vector&& other) noexcept {
             data = std::move(other.data);
             other.data.fill(T());
             return *this;
@@ -47,9 +47,9 @@ namespace simd {
             return data[index];
         }
 
-        array<T, N> operator+(array& other)
+        vector<T, N> operator+(vector& other)
         {
-            array<T, N> result;
+            vector<T, N> result;
             size_t i = 0;
             if constexpr (std::is_integral<T>::value)
             {
@@ -84,9 +84,9 @@ namespace simd {
             return result;
         }
 
-        array<T, N> operator+(T const& s)
+        vector<T, N> operator+(T const& s)
         {
-            array<T, N> result;
+            vector<T, N> result;
             size_t i = 0;
             if constexpr (std::is_integral<T>::value)
             {
@@ -120,9 +120,9 @@ namespace simd {
             return result;
         }
 
-        friend array<T, N> operator+(T const& s, const array& other)
+        friend vector<T, N> operator+(T const& s, const vector& other)
         {
-            array<T, N> result;
+            vector<T, N> result;
             size_t i = 0;
             if constexpr (std::is_integral<T>::value)
             {
@@ -156,9 +156,9 @@ namespace simd {
             return result;
         }
 
-        array<T, N> operator-(array& other)
+        vector<T, N> operator-(vector& other)
         {
-            array<T, N> result;
+            vector<T, N> result;
             size_t i = 0;
             if constexpr (std::is_integral<T>::value)
             {
@@ -192,9 +192,9 @@ namespace simd {
             return result;
         }
 
-        array<T, N> operator-(T const& s)
+        vector<T, N> operator-(T const& s)
         {
-            array<T, N> result;
+            vector<T, N> result;
             size_t i = 0;
             if constexpr (std::is_integral<T>::value)
             {
@@ -228,9 +228,9 @@ namespace simd {
             return result;
         }
 
-        friend array<T, N> operator-(T const& s, const array& other)
+        friend vector<T, N> operator-(T const& s, const vector& other)
         {
-            array<T, N> result;
+            vector<T, N> result;
             size_t i = 0;
             if constexpr (std::is_integral<T>::value)
             {
@@ -264,9 +264,9 @@ namespace simd {
             return result;
         }
 
-        array<T, N> operator*(array& other)
+        vector<T, N> operator*(vector& other)
         {
-            array<T, N> result;
+            vector<T, N> result;
             size_t i = 0;
             if constexpr (std::is_integral<T>::value)
             {
@@ -300,9 +300,9 @@ namespace simd {
             return result;
         }
 
-        array<T, N> operator*(T const& s)
+        vector<T, N> operator*(T const& s)
         {
-            array<T, N> result;
+            vector<T, N> result;
             size_t i = 0;
             if constexpr (std::is_integral<T>::value)
             {
@@ -336,9 +336,9 @@ namespace simd {
             return result;
         }
 
-        friend array<T, N> operator*(T const& s, const array& other)
+        friend vector<T, N> operator*(T const& s, const vector& other)
         {
-            array<T, N> result;
+            vector<T, N> result;
             size_t i = 0;
             if constexpr (std::is_integral<T>::value)
             {
@@ -372,9 +372,9 @@ namespace simd {
             return result;
         }
 
-        array<T, N> operator/(array& other)
+        vector<T, N> operator/(vector& other)
         {
-            array<T, N> result;
+            vector<T, N> result;
             size_t i = 0;
             if constexpr (std::is_integral<T>::value)
             {
@@ -408,9 +408,9 @@ namespace simd {
             return result;
         }
 
-        array<T, N> operator/(T const& s)
+        vector<T, N> operator/(T const& s)
         {
-            array<T, N> result;
+            vector<T, N> result;
             size_t i = 0;
             if constexpr (std::is_integral<T>::value)
             {
@@ -444,9 +444,9 @@ namespace simd {
             return result;
         }
 
-        friend array<T, N> operator/(T const& s, const array& other)
+        friend vector<T, N> operator/(T const& s, const vector& other)
         {
-            array<T, N> result;
+            vector<T, N> result;
             size_t i = 0;
             if constexpr (std::is_integral<T>::value)
             {
