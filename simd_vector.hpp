@@ -14,30 +14,8 @@
 namespace simd {
     template <typename T, size_t N>
     class vector {
-    private:
-        std::array<T, N> data;
-
     public:
-        vector() = default;
-        ~vector() = default;
-
-        explicit vector(std::array<T, N> const& std_array) : data(std_array) {}
-
-        vector(const vector& other) : vector(other.data) {}
-
-        vector(vector&& other) noexcept : data(std::move(other.data)) {
-            other.data.fill(T());
-        }
-
-        vector& operator=(const vector& other) {
-            return *this = vector(other);
-        }
-
-        vector& operator=(vector&& other) noexcept {
-            data = std::move(other.data);
-            other.data.fill(T());
-            return *this;
-        }
+        std::array<T, N> data;
 
         T& operator[](size_t index) {
             return data[index];

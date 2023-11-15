@@ -139,8 +139,8 @@ int main ()
 {
     print_supported_intructions();
 
-    simd::vector<float, 20> simd_int_array1({1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20});
-    simd::vector<float, 20> simd_int_array2({1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20});
+    simd::vector<float, 20> simd_int_array1 = {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20};
+    simd::vector<float, 20> simd_int_array2 = {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20};
     simd::vector<float, 20> result1 = simd_int_array1 + simd_int_array2;
     simd::vector<float, 20> result2 = simd_int_array1 - simd_int_array2;
     simd::vector<float, 20> result3 = simd_int_array1 * simd_int_array2;
