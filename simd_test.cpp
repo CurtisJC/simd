@@ -139,20 +139,20 @@ int main ()
 {
     print_supported_intructions();
 
-    simd::vector<float, 20> simd_int_array1 = {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20};
-    simd::vector<float, 20> simd_int_array2 = {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20};
-    simd::vector<float, 20> result1 = simd_int_array1 + simd_int_array2;
-    simd::vector<float, 20> result2 = simd_int_array1 - simd_int_array2;
-    simd::vector<float, 20> result3 = simd_int_array1 * simd_int_array2;
-    simd::vector<float, 20> result4 = simd_int_array1 / simd_int_array2;
-    simd::vector<float, 20> result5 = simd_int_array2 + 10;
-    simd::vector<float, 20> result6 = 20.0f + simd_int_array2;
-    simd::vector<float, 20> result7 = simd_int_array2 - 10;
-    simd::vector<float, 20> result8 = 20.0f - simd_int_array2;
-    simd::vector<float, 20> result9 = simd_int_array2 * 10;
-    simd::vector<float, 20> result10 = 20.0f * simd_int_array2;
-    simd::vector<float, 20> result11 = simd_int_array2 / 10;
-    simd::vector<float, 20> result12 = 20.0f / simd_int_array2;
+    simd::vector<int16_t, 20> simd_int_array1 = {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20};
+    simd::vector<int16_t, 20> simd_int_array2 = {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20};
+    simd::vector<int16_t, 20> result1 = simd_int_array1 + simd_int_array2;
+    simd::vector<int16_t, 20> result2 = simd_int_array1 - simd_int_array2;
+    simd::vector<int16_t, 20> result3 = simd_int_array1 * simd_int_array2;
+    simd::vector<int16_t, 20> result4 = simd_int_array1 / simd_int_array2;
+    simd::vector<int16_t, 20> result5 = simd_int_array2 + 10;
+    simd::vector<int16_t, 20> result6 = 20.0f + simd_int_array2;
+    simd::vector<int16_t, 20> result7 = simd_int_array2 - 10;
+    simd::vector<int16_t, 20> result8 = 20.0f - simd_int_array2;
+    simd::vector<int16_t, 20> result9 = simd_int_array2 * 10;
+    simd::vector<int16_t, 20> result10 = 20.0f * simd_int_array2;
+    simd::vector<int16_t, 20> result11 = simd_int_array2 / 10;
+    simd::vector<int16_t, 20> result12 = 20.0f / simd_int_array2;
 
     print_vector(result1);
     print_vector(result2);

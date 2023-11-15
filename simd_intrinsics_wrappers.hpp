@@ -58,6 +58,91 @@ namespace simd {
     //    return _mm_add_epi16(high, _mm_slli_epi16(low, 16));
     //}
 
+    static inline __m128i _mm_div_epi16(__m128i const& a, __m128i const& b) {
+        // Setup the constants.
+        const __m128  two     = _mm_set1_ps(2.00000051757f);
+        const __m128i lo_mask = _mm_set1_epi32(0xFFFF);
+
+        // Convert to two 32-bit integers
+        const __m128i a_hi_epi32       = _mm_srai_epi32(a, 16);
+        const __m128i a_lo_epi32       = _mm_srai_epi32(_mm_slli_epi32(a, 16), 16);
+        const __m128i b_hi_epi32       = _mm_srai_epi32(b, 16);
+        const __m128i b_lo_epi32       = _mm_srai_epi32(_mm_slli_epi32(b, 16), 16);
+
+        // Convert to 32-bit floats
+        const __m128 a_hi = _mm_cvtepi32_ps(a_hi_epi32);
+        const __m128 a_lo = _mm_cvtepi32_ps(a_lo_epi32);
+        const __m128 b_hi = _mm_cvtepi32_ps(b_hi_epi32);
+        const __m128 b_lo = _mm_cvtepi32_ps(b_lo_epi32);
+
+        // Calculate the reciprocal
+        const __m128 b_hi_rcp = _mm_rcp_ps(b_hi);
+        const __m128 b_lo_rcp = _mm_rcp_ps(b_lo);
+
+        // Calculate the inverse
+        #ifdef __FMA__
+            const __m128 b_hi_inv_1 = _mm_fnmadd_ps(b_hi_rcp, b_hi, two);
+            const __m128 b_lo_inv_1 = _mm_fnmadd_ps(b_lo_rcp, b_lo, two);
+        #else
+            const __m128 b_hi_inv_1 = _mm_sub_ps(two, _mm_mul_ps(b_hi_rcp, b_hi));
+            const __m128 b_lo_inv_1 = _mm_sub_ps(two, _mm_mul_ps(b_lo_rcp, b_lo));
+        #endif
+
+        // Compensate for the loss
+        const __m128 b_hi_rcp_1 = _mm_mul_ps(b_hi_rcp, b_hi_inv_1);
+        const __m128 b_lo_rcp_1 = _mm_mul_ps(b_lo_rcp, b_lo_inv_1);
+
+        // Perform the division by multiplication
+        const __m128 hi = _mm_mul_ps(a_hi, b_hi_rcp_1);
+        const __m128 lo = _mm_mul_ps(a_lo, b_lo_rcp_1);
+
+        // Convert back to integers
+        const __m128i hi_epi32 = _mm_cvttps_epi32(hi);
+        const __m128i lo_epi32 = _mm_cvttps_epi32(lo);
+
+        // Zero-out the unnecessary parts
+        const __m128i hi_epi32_shift = _mm_slli_epi32(hi_epi32, 16);
+
+        // Blend the bits, and return
+        #ifdef __SSE4_1__
+            return _mm_blend_epi16(lo_epi32, hi_epi32_shift, 0xAA);
+        #else
+            return _mm_or_si128(hi_epi32_shift, _mm_and_si128(lo_epi32, const_mm_div_epi16_lo_mask));
+        #endif
+    }
+
+    static inline __m256i _mm256_div_epi16(__m256i const& a, __m256i const& b) {
+        // Setup the constants.
+        const __m256 two = _mm256_set1_ps(2.00000051757f);
+
+        // Convert to two 32-bit integers
+        const __m256i a_hi_epi32       = _mm256_srai_epi32(a, 16);
+        const __m256i a_lo_epi32       = _mm256_srai_epi32(_mm256_slli_epi32(a, 16), 16);
+        const __m256i b_hi_epi32       = _mm256_srai_epi32(b, 16);
+        const __m256i b_lo_epi32       = _mm256_srai_epi32(_mm256_slli_epi32(b, 16), 16);
+
+        // Convert to 32-bit floats
+        const __m256 a_hi = _mm256_cvtepi32_ps(a_hi_epi32);
+        const __m256 a_lo = _mm256_cvtepi32_ps(a_lo_epi32);
+        const __m256 b_hi = _mm256_cvtepi32_ps(b_hi_epi32);
+        const __m256 b_lo = _mm256_cvtepi32_ps(b_lo_epi32);
+
+        // Calculate the reciprocal
+        const __m256 b_hi_rcp = _mm256_rcp_ps(b_hi);
+        const __m256 b_lo_rcp = _mm256_rcp_ps(b_lo);
+
+        // Calculate the inverse
+        // Compensate for the loss
+        // Perform the division by multiplication
+        const __m256 hi = _mm256_mul_ps(a_hi, _mm256_mul_ps(b_hi_rcp, _mm256_fnmadd_ps(b_hi_rcp, b_hi, two)));
+        const __m256 lo = _mm256_mul_ps(a_lo, _mm256_mul_ps(b_lo_rcp, _mm256_fnmadd_ps(b_lo_rcp, b_lo, two)));
+
+        // Convert back to integers
+        // Blend the low and the high-parts
+        const __m256i hi_epi32_shift = _mm256_slli_epi32(_mm256_cvttps_epi32(hi), 16);
+        return _mm256_blend_epi16(_mm256_cvttps_epi32(lo), hi_epi32_shift, 0xAA);
+    }
+
     template<typename V>
     V load(void const* mem_addr)
     {
@@ -185,27 +270,27 @@ namespace simd {
     {
         if constexpr (std::is_same_v<V, __m128i>)
         {
-            if constexpr (std::is_same_v<T, uint8_t>)       { return _mm_div_epu8(a, b); }  // SSE
-            else if constexpr (std::is_same_v<T, int8_t>)   { return _mm_div_epi8(a, b); }  // SSE
-            else if constexpr (std::is_same_v<T, uint16_t>) { return _mm_div_epu16(a, b); } // SSE
-            else if constexpr (std::is_same_v<T, int16_t>)  { return _mm_div_epi16(a, b); } // SSE
-            // else if constexpr (std::is_same_v<T, uint32_t>) { return _mm_div_epu32(a, b); } // SSE - FAIL - SVML (Intel only)
-            // else if constexpr (std::is_same_v<T, int32_t>)  { return _mm_div_epi32(a, b); } // SSE - FAIL - SVML (Intel only)
-            else if constexpr (std::is_same_v<T, uint64_t>) { return _mm_div_epu64(a, b); } // SSE
-            else if constexpr (std::is_same_v<T, int64_t>)  { return _mm_div_epi64(a, b); } // SSE
+            if constexpr (std::is_same_v<T, uint8_t>)       { return _mm_div_epu8(a, b); }  // SSE - FAIL - SVML (Intel only)
+            else if constexpr (std::is_same_v<T, int8_t>)   { return _mm_div_epi8(a, b); }  // SSE - FAIL - SVML (Intel only)
+            else if constexpr (std::is_same_v<T, uint16_t>) { return _mm_div_epu16(a, b); } // SSE - FAIL - SVML (Intel only)
+            else if constexpr (std::is_same_v<T, int16_t>)  { return _mm_div_epi16(a, b); } // SSE - FAIL - SVML (Intel only)
+            else if constexpr (std::is_same_v<T, uint32_t>) { return _mm_div_epu32(a, b); } // SSE - FAIL - SVML (Intel only)
+            else if constexpr (std::is_same_v<T, int32_t>)  { return _mm_div_epi32(a, b); } // SSE - FAIL - SVML (Intel only)
+            else if constexpr (std::is_same_v<T, uint64_t>) { return _mm_div_epu64(a, b); } // SSE - FAIL - SVML (Intel only)
+            else if constexpr (std::is_same_v<T, int64_t>)  { return _mm_div_epi64(a, b); } // SSE - FAIL - SVML (Intel only)
         }
         else if constexpr (std::is_same_v<V, __m128>)  { return _mm_div_ps(a, b); } // SSE
         else if constexpr (std::is_same_v<V, __m128d>) { return _mm_div_pd(a, b); } // SSE2
         else if constexpr (std::is_same_v<V, __m256i>)
         {
-            if constexpr (std::is_same_v<T, uint8_t>)       { return _mm256_div_epu8(a, b); }  // AVX
-            else if constexpr (std::is_same_v<T, int8_t>)   { return _mm256_div_epi8(a, b); }  // AVX
-            else if constexpr (std::is_same_v<T, uint16_t>) { return _mm256_div_epu16(a, b); } // AVX
-            else if constexpr (std::is_same_v<T, int16_t>)  { return _mm256_div_epi16(a, b); } // AVX
-            // else if constexpr (std::is_same_v<T, uint32_t>) { return _mm256_div_epu32(a, b); } // AVX - FAIL - SVML (Intel only)
-            // else if constexpr (std::is_same_v<T, int32_t>)  { return _mm256_div_epi32(a, b); } // AVX - FAIL - SVML (Intel only)
-            else if constexpr (std::is_same_v<T, uint64_t>) { return _mm256_div_epu64(a, b); } // AVX
-            else if constexpr (std::is_same_v<T, int64_t>)  { return _mm256_div_epi64(a, b); } // AVX
+            if constexpr (std::is_same_v<T, uint8_t>)       { return _mm256_div_epu8(a, b); }  // AVX - FAIL - SVML (Intel only)
+            else if constexpr (std::is_same_v<T, int8_t>)   { return _mm256_div_epi8(a, b); }  // AVX - FAIL - SVML (Intel only)
+            else if constexpr (std::is_same_v<T, uint16_t>) { return _mm256_div_epu16(a, b); } // AVX - FAIL - SVML (Intel only)
+            else if constexpr (std::is_same_v<T, int16_t>)  { return _mm256_div_epi16(a, b); } // AVX - FAIL - SVML (Intel only)
+            else if constexpr (std::is_same_v<T, uint32_t>) { return _mm256_div_epu32(a, b); } // AVX - FAIL - SVML (Intel only)
+            else if constexpr (std::is_same_v<T, int32_t>)  { return _mm256_div_epi32(a, b); } // AVX - FAIL - SVML (Intel only)
+            else if constexpr (std::is_same_v<T, uint64_t>) { return _mm256_div_epu64(a, b); } // AVX - FAIL - SVML (Intel only)
+            else if constexpr (std::is_same_v<T, int64_t>)  { return _mm256_div_epi64(a, b); } // AVX - FAIL - SVML (Intel only)
         }
         else if constexpr (std::is_same_v<V, __m256>)  { return _mm256_div_ps(a, b); } // AVX
         else if constexpr (std::is_same_v<V, __m256d>) { return _mm256_div_pd(a, b); } // AVX
