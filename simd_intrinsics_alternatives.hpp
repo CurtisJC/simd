@@ -45,18 +45,38 @@ namespace simd {
     //    // Convert the product back to unsigned 16-bit integers.
     //    return _mm_cvtepi32_epi16(product);
     //}
-//
-    //__m128i _mm_mul_epi16(__m128i a, __m128i b)
-    //{
-    //    // Perform high-order and low-order multiplications.
-    //    __m128i high = _mm_mulhi_epi16(a, b);
-    //    __m128i low = _mm_mullo_epi16(a, b);
-//
-    //    // Combine the high-order and low-order products.
-    //    return _mm_add_epi16(high, _mm_slli_epi16(low, 16));
-    //}
 
-    static inline __m128i _mm_div_epi16(__m128i const& a, __m128i const& b) {
+//-----------------------------------------------------------------------------
+//  multiplication instructions
+//-----------------------------------------------------------------------------
+    inline __m128i simd_mul_si32(__m128i const& a, __m128i const& b) {
+    #ifdef __SSE4_1__
+        return _mm_mullo_epi32(a, b);
+    #else // SSE 2
+        __m128i tmp1 = _mm_mul_epu32(a,b); // mul 2,0
+        __m128i tmp2 = _mm_mul_epu32( _mm_srli_si128(a,4), _mm_srli_si128(b,4)); // mul 3,1
+        return _mm_unpacklo_epi32(_mm_shuffle_epi32(tmp1, _MM_SHUFFLE (0,0,2,0)), _mm_shuffle_epi32(tmp2, _MM_SHUFFLE (0,0,2,0))); // shuffle results to [63..0] and pack */
+    #endif // __SSE4_1__
+    }
+    
+    inline __m256i simd_mul_si32(__m256i const& a, __m256i const& b) {
+        return _mm256_mullo_epi32(a, b);
+    }
+
+    inline __m128i simd_mul_ui32(__m128i const& a, __m128i const& b) {
+        // STUB
+        return a;
+    }
+
+    inline __m256i simd_mul_ui32(__m256i const& a, __m256i const& b) {
+        // STUB
+        return a;
+    }
+
+//-----------------------------------------------------------------------------
+//  division instructions
+//-----------------------------------------------------------------------------
+    inline __m128i simd_div_si16(__m128i const& a, __m128i const& b) {
         // Setup the constants.
         const __m128  two     = _mm_set1_ps(2.00000051757f);
         const __m128i lo_mask = _mm_set1_epi32(0xFFFF);
@@ -109,7 +129,7 @@ namespace simd {
         #endif
     }
 
-    static inline __m256i _mm256_div_epi16(__m256i const& a, __m256i const& b) {
+    inline __m256i simd_div_si16(__m256i const& a, __m256i const& b) {
         // Setup the constants.
         const __m256 two = _mm256_set1_ps(2.00000051757f);
 
@@ -139,5 +159,45 @@ namespace simd {
         // Blend the low and the high-parts
         const __m256i hi_epi32_shift = _mm256_slli_epi32(_mm256_cvttps_epi32(hi), 16);
         return _mm256_blend_epi16(_mm256_cvttps_epi32(lo), hi_epi32_shift, 0xAA);
+    }
+
+    inline __m128i simd_div_ui32(__m128i const& a, __m128i const& b) {
+        // Setup the constants.
+        const __m128 two = _mm_set1_ps(2.00000051757f);
+
+        // Convert to 32-bit floats
+        const __m128 a_f = _mm_cvtepi32_ps(a);
+        const __m128 b_f = _mm_cvtepi32_ps(b);
+
+        // Calculate the reciprocal
+        const __m128 b_rcp = _mm_rcp_ps(b_f);
+
+        // Calculate the inverse
+        // Compensate for the loss
+        // Perform the division by multiplication
+        const __m128 f = _mm_mul_ps(a_f, _mm_mul_ps(b_rcp, _mm_fnmadd_ps(b_rcp, b_f, two)));
+
+        // Convert back to integers
+        return _mm_cvttps_epi32(f);
+    }
+
+    inline __m256i simd_div_ui32(__m256i const& a, __m256i const& b) {
+        // Setup the constants.
+        const __m256 two = _mm256_set1_ps(2.00000051757f);
+
+        // Convert to 32-bit floats
+        const __m256 a_f = _mm256_cvtepi32_ps(a);
+        const __m256 b_f = _mm256_cvtepi32_ps(b);
+
+        // Calculate the reciprocal
+        const __m256 b_rcp = _mm256_rcp_ps(b_f);
+
+        // Calculate the inverse
+        // Compensate for the loss
+        // Perform the division by multiplication
+        const __m256 f = _mm256_mul_ps(a_f, _mm256_mul_ps(b_rcp, _mm256_fnmadd_ps(b_rcp, b_f, two)));
+
+        // Convert back to integers
+        return _mm256_cvttps_epi32(f);
     }
 }

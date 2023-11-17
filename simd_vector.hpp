@@ -6,29 +6,31 @@
 #pragma once
 
 #include <array>
-#include <initializer_list>
+#include <cstddef>
+#include <cstdint>
+//#include <stdfloat>
 #include <immintrin.h>
 
 #include "simd_intrinsics_wrappers.hpp"
 
 namespace simd {
-    template <typename T, size_t N>
+    template <typename T, std::size_t N>
     class vector {
     public:
         std::array<T, N> data;
 
-        T& operator[](size_t index) {
+        T& operator[](std::size_t index) {
             return data[index];
         }
 
-        const T& operator[](size_t index) const {
+        const T& operator[](std::size_t index) const {
             return data[index];
         }
 
         vector<T, N> operator+(vector& other)
         {
             vector<T, N> result;
-            size_t i = 0;
+            std::size_t i = 0;
             if constexpr (std::is_integral<T>::value)
             {
             #ifdef __AVX2__
@@ -65,7 +67,7 @@ namespace simd {
         vector<T, N> operator+(T const& s)
         {
             vector<T, N> result;
-            size_t i = 0;
+            std::size_t i = 0;
             if constexpr (std::is_integral<T>::value)
             {
             #ifdef __AVX2__
@@ -101,7 +103,7 @@ namespace simd {
         friend vector<T, N> operator+(T const& s, const vector& other)
         {
             vector<T, N> result;
-            size_t i = 0;
+            std::size_t i = 0;
             if constexpr (std::is_integral<T>::value)
             {
             #ifdef __AVX2__
@@ -137,7 +139,7 @@ namespace simd {
         vector<T, N> operator-(vector& other)
         {
             vector<T, N> result;
-            size_t i = 0;
+            std::size_t i = 0;
             if constexpr (std::is_integral<T>::value)
             {
             #ifdef __AVX2__
@@ -173,7 +175,7 @@ namespace simd {
         vector<T, N> operator-(T const& s)
         {
             vector<T, N> result;
-            size_t i = 0;
+            std::size_t i = 0;
             if constexpr (std::is_integral<T>::value)
             {
             #ifdef __AVX2__
@@ -209,7 +211,7 @@ namespace simd {
         friend vector<T, N> operator-(T const& s, const vector& other)
         {
             vector<T, N> result;
-            size_t i = 0;
+            std::size_t i = 0;
             if constexpr (std::is_integral<T>::value)
             {
             #ifdef __AVX2__
@@ -245,7 +247,7 @@ namespace simd {
         vector<T, N> operator*(vector& other)
         {
             vector<T, N> result;
-            size_t i = 0;
+            std::size_t i = 0;
             if constexpr (std::is_integral<T>::value)
             {
             #ifdef __AVX2__
@@ -281,7 +283,7 @@ namespace simd {
         vector<T, N> operator*(T const& s)
         {
             vector<T, N> result;
-            size_t i = 0;
+            std::size_t i = 0;
             if constexpr (std::is_integral<T>::value)
             {
             #ifdef __AVX2__
@@ -317,7 +319,7 @@ namespace simd {
         friend vector<T, N> operator*(T const& s, const vector& other)
         {
             vector<T, N> result;
-            size_t i = 0;
+            std::size_t i = 0;
             if constexpr (std::is_integral<T>::value)
             {
             #ifdef __AVX2__
@@ -353,7 +355,7 @@ namespace simd {
         vector<T, N> operator/(vector& other)
         {
             vector<T, N> result;
-            size_t i = 0;
+            std::size_t i = 0;
             if constexpr (std::is_integral<T>::value)
             {
             #ifdef __AVX2__
@@ -389,7 +391,7 @@ namespace simd {
         vector<T, N> operator/(T const& s)
         {
             vector<T, N> result;
-            size_t i = 0;
+            std::size_t i = 0;
             if constexpr (std::is_integral<T>::value)
             {
             #ifdef __AVX2__
@@ -425,7 +427,7 @@ namespace simd {
         friend vector<T, N> operator/(T const& s, const vector& other)
         {
             vector<T, N> result;
-            size_t i = 0;
+            std::size_t i = 0;
             if constexpr (std::is_integral<T>::value)
             {
             #ifdef __AVX2__
@@ -460,9 +462,9 @@ namespace simd {
 
     private:
         template<typename V>
-        static void simd_loop(size_t &i, std::array<T, N> const& a, std::array<T, N> const& b, std::array<T, N>& c, auto lamba_op)
+        static void simd_loop(std::size_t &i, std::array<T, N> const& a, std::array<T, N> const& b, std::array<T, N>& c, auto lamba_op)
         {
-            const size_t VN = sizeof(V)/sizeof(T);
+            const std::size_t VN = sizeof(V)/sizeof(T);
             for (; i < N - VN; i += VN)
             {
                 V va = load<V>(&a[i]);
@@ -472,10 +474,10 @@ namespace simd {
         }
 
         template<typename V>
-        static void simd_loop_scalar(size_t &i, T const a, std::array<T, N> const& b, std::array<T, N> &c, auto lamba_op)
+        static void simd_loop_scalar(std::size_t &i, T const a, std::array<T, N> const& b, std::array<T, N> &c, auto lamba_op)
         {
             V va = set<T, V>(a);
-            const size_t VN = sizeof(V)/sizeof(T);
+            const std::size_t VN = sizeof(V)/sizeof(T);
             for (; i < N - VN; i += VN)
             {
                 V vb = load<V>(&b[i]);
