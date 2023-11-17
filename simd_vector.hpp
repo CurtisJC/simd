@@ -8,7 +8,7 @@
 #include <array>
 #include <cstddef>
 #include <cstdint>
-//#include <stdfloat>
+//#include <stdfloat> // std::float32_t, std::float64_t
 #include <immintrin.h>
 
 #include "simd_intrinsics_wrappers.hpp"
@@ -460,28 +460,66 @@ namespace simd {
             return result;
         }
 
+        vector<T, N> operator==(vector& other)
+        {
+            vector<T, N> result;
+            std::size_t i = 0;
+            if constexpr (std::is_integral<T>::value)
+            {
+            #ifdef __AVX2__
+                simd_loop<__m256i>(i, data, other.data, result.data, [](__m256i a, __m256i b){ return cmpeq<T, __m256i>(a, b); });
+            #else
+                simd_loop<__m128i>(i, data, other.data, result.data, [](__m128i a, __m128i b){ return cmpeq<T, __m128i>(a, b); });
+            #endif // __AVX2__
+            }
+            else if constexpr (std::is_same<T, float>::value)
+            {
+            #ifdef __AVX__
+                simd_loop<__m256>(i, data, other.data, result.data, [](__m256 a, __m256 b){ return cmpeq<T, __m256>(a, b); });
+            #else
+                simd_loop<__m128>(i, data, other.data, result.data, [](__m128 a, __m128 b){ return cmpeq<T, __m128>(a, b); });
+            #endif // __AVX2__
+            }
+            else if constexpr (std::is_same<T, double>::value)
+            {
+            #ifdef __AVX__
+                simd_loop<__m256d>(i, data, other.data, result.data, [](__m256d a, __m256d b){ return cmpeq<T, __m256d>(a, b); });
+            #else
+                simd_loop<__m128d>(i, data, other.data, result.data, [](__m128d a, __m128d b){ return cmpeq<T, __m128d>(a, b); });
+            #endif // __AVX2__
+            }
+
+            for (; i < N; i++)
+            {
+                result[i] = data[i] == other.data[i] ? ~T(0) : 0;
+            }
+            return result;
+        }
+
     private:
         template<typename V>
         static void simd_loop(std::size_t &i, std::array<T, N> const& a, std::array<T, N> const& b, std::array<T, N>& c, auto lamba_op)
         {
             const std::size_t VN = sizeof(V)/sizeof(T);
-            for (; i < N - VN; i += VN)
-            {
-                V va = load<V>(&a[i]);
-                V vb = load<V>(&b[i]);
-                store<V>(&c[i], lamba_op(va, vb));
+            if constexpr (N >= VN) {
+                for (; i < N - VN; i += VN) {
+                    V va = load<V>(&a[i]);
+                    V vb = load<V>(&b[i]);
+                    store<V>(&c[i], lamba_op(va, vb));
+                }
             }
         }
 
         template<typename V>
         static void simd_loop_scalar(std::size_t &i, T const a, std::array<T, N> const& b, std::array<T, N> &c, auto lamba_op)
         {
-            V va = set<T, V>(a);
             const std::size_t VN = sizeof(V)/sizeof(T);
-            for (; i < N - VN; i += VN)
-            {
-                V vb = load<V>(&b[i]);
-                store<V>(&c[i], lamba_op(va, vb));
+            if constexpr (N >= VN) {
+                V va = set<T, V>(a);
+                for (; i < N - VN; i += VN) {
+                    V vb = load<V>(&b[i]);
+                    store<V>(&c[i], lamba_op(va, vb));
+                }
             }
         }
     };

@@ -220,7 +220,7 @@ namespace simd {
     requires (std::is_same_v<V, __m256i>)
     V mul(V const a, V const b) {
         if constexpr (std::is_same_v<T, std::uint8_t>)       { return _mm256_mul_epu8(a, b); } // TODO
-        else if constexpr (std::is_same_v<T, std::int8_t>)   { return _mm256_mul_epi8(a, b); } // TODO
+        else if constexpr (std::is_same_v<T, std::int8_t>)   { return simd_mul_si8(a, b); } // TODO
         else if constexpr (std::is_same_v<T, std::uint16_t>) { return _mm256_mul_epu16(a, b); } // TODO
         else if constexpr (std::is_same_v<T, std::int16_t>)  { return _mm256_mullo_epi16(a, b); } // AVX2
         else if constexpr (std::is_same_v<T, std::uint32_t>) { return simd_mul_ui32(a, b); } // TODO
@@ -247,7 +247,7 @@ namespace simd {
     requires (std::is_same_v<V, __m128i>)
     V div(V const a, V const b) {
         if constexpr (std::is_same_v<T, std::uint8_t>)       { return _mm_div_epu8(a, b); }  // SSE - FAIL - SVML (Intel only)
-        else if constexpr (std::is_same_v<T, std::int8_t>)   { return _mm_div_epi8(a, b); }  // SSE - FAIL - SVML (Intel only)
+        else if constexpr (std::is_same_v<T, std::int8_t>)   { return simd_div_si8(a, b); }  // SSE - FAIL - SVML (Intel only)
         else if constexpr (std::is_same_v<T, std::uint16_t>) { return _mm_div_epu16(a, b); } // SSE - FAIL - SVML (Intel only)
         else if constexpr (std::is_same_v<T, std::int16_t>)  { return simd_div_si16(a, b); } // SSE - FAIL - SVML (Intel only)
         else if constexpr (std::is_same_v<T, std::uint32_t>) { return simd_div_ui32(a, b); } // SSE - FAIL - SVML (Intel only)
@@ -271,7 +271,7 @@ namespace simd {
     requires (std::is_same_v<V, __m256i>)
     V div(V const a, V const b) {
         if constexpr (std::is_same_v<T, std::uint8_t>)       { return _mm256_div_epu8(a, b); }  // AVX - FAIL - SVML (Intel only)
-        else if constexpr (std::is_same_v<T, std::int8_t>)   { return _mm256_div_epi8(a, b); }  // AVX - FAIL - SVML (Intel only)
+        else if constexpr (std::is_same_v<T, std::int8_t>)   { return simd_div_si8(a, b); }  // AVX - FAIL - SVML (Intel only)
         else if constexpr (std::is_same_v<T, std::uint16_t>) { return _mm256_div_epu16(a, b); } // AVX - FAIL - SVML (Intel only)
         else if constexpr (std::is_same_v<T, std::int16_t>)  { return simd_div_si16(a, b); } // AVX - FAIL - SVML (Intel only)
         else if constexpr (std::is_same_v<T, std::uint32_t>) { return simd_div_ui32(a, b); } // AVX - FAIL - SVML (Intel only)
@@ -289,4 +289,59 @@ namespace simd {
     template<typename T, typename V>
     requires (std::is_same_v<V, __m256d>)
     V div(V const a, V const b) { return _mm256_div_pd(a, b); } // AVX
+
+//-----------------------------------------------------------------------------
+//  comparison instructions
+//-----------------------------------------------------------------------------
+    // 128bit vector integer division
+    template<typename T, typename V>
+    requires (std::is_same_v<V, __m128i>)
+    V cmpeq(V const a, V const b) {
+        if constexpr (std::is_same_v<T, std::uint8_t>)       { return _mm_cmpeq_epi8(a, b); }  // SSE2
+        else if constexpr (std::is_same_v<T, std::int8_t>)   { return _mm_cmpeq_epi8(a, b); }  // SSE2
+        else if constexpr (std::is_same_v<T, std::uint16_t>) { return _mm_cmpeq_epi16(a, b); } // SSE2
+        else if constexpr (std::is_same_v<T, std::int16_t>)  { return _mm_cmpeq_epi16(a, b); } // SSE2
+        else if constexpr (std::is_same_v<T, std::uint32_t>) { return _mm_cmpeq_epi32(a, b); } // SSE2
+        else if constexpr (std::is_same_v<T, std::int32_t>)  { return _mm_cmpeq_epi32(a, b); } // SSE2
+        else if constexpr (std::is_same_v<T, std::uint64_t>) { return _mm_cmpeq_epi64(a, b); } // SSE4.1
+        else if constexpr (std::is_same_v<T, std::int64_t>)  { return _mm_cmpeq_epi64(a, b); } // SSE4.1
+    }
+
+    // 128bit vector float division
+    template<typename T, typename V>
+    requires (std::is_same_v<V, __m128>)
+    V cmpeq(V const a, V const b) { return _mm_cmpeq_ps(a, b); } // SSE
+
+    // 128bit vector double division
+    template<typename T, typename V>
+    requires (std::is_same_v<V, __m128d>)
+    V cmpeq(V const a, V const b) { return _mm_cmpeq_pd(a, b); } // SSE2
+
+#ifdef __AVX2__
+    // 256bit vector integer division
+    template<typename T, typename V>
+    requires (std::is_same_v<V, __m256i>)
+    V cmpeq(V const a, V const b) {
+        if constexpr (std::is_same_v<T, std::uint8_t>)       { return _mm256_cmpeq_epi8(a, b); }  // AVX2
+        else if constexpr (std::is_same_v<T, std::int8_t>)   { return _mm256_cmpeq_epi8(a, b); }  // AVX2
+        else if constexpr (std::is_same_v<T, std::uint16_t>) { return _mm256_cmpeq_epi16(a, b); } // AVX2
+        else if constexpr (std::is_same_v<T, std::int16_t>)  { return _mm256_cmpeq_epi16(a, b); } // AVX2
+        else if constexpr (std::is_same_v<T, std::uint32_t>) { return _mm256_cmpeq_epi32(a, b); } // AVX2
+        else if constexpr (std::is_same_v<T, std::int32_t>)  { return _mm256_cmpeq_epi32(a, b); } // AVX2
+        else if constexpr (std::is_same_v<T, std::uint64_t>) { return _mm256_cmpeq_epi64(a, b); } // AVX2
+        else if constexpr (std::is_same_v<T, std::int64_t>)  { return _mm256_cmpeq_epi64(a, b); } // AVX2
+    }
+#endif // __AVX2__
+
+#ifdef __AVX__
+    // 256bit vector float division
+    template<typename T, typename V>
+    requires (std::is_same_v<V, __m256>)
+    V cmpeq(V const a, V const b) { return _mm256_cmp_ps(a, b, _CMP_EQ_OQ); } // AVX
+
+    // 256bit vector double division
+    template<typename T, typename V>
+    requires (std::is_same_v<V, __m256d>)
+    V cmpeq(V const a, V const b) { return _mm256_cmp_pd(a, b, _CMP_EQ_OQ); } // AVX
+#endif // __AVX__
 }
