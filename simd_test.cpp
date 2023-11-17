@@ -563,6 +563,224 @@ TEST(uint8_t, div)
     }
 }
 
+//-----------------------------------------------------------------------------
+//  int16_t
+//-----------------------------------------------------------------------------
+
+TEST(int16_t, add)
+{
+    const std::size_t N = 20;
+
+    simd::vector<std::int16_t, N> simd_int_array = {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20};
+    std::int16_t expected;
+
+    simd::vector<std::int16_t, N> result1 = simd_int_array + simd_int_array;
+
+    for (int i = 0; i < N; ++i) {
+        expected = simd_int_array[i] + simd_int_array[i];
+        EXPECT_EQ(expected, result1[i]) << "Vector result1 differ at index " << i;
+    }
+
+    simd::vector<std::int16_t, N> result2 = simd_int_array + 10;
+    for (int i = 0; i < N; ++i) {
+        expected = simd_int_array[i] + 10;
+        EXPECT_EQ(expected, result2[i]) << "Vector result2 differ at index " << i;
+    }
+
+    simd::vector<std::int16_t, N> result3 = 20 + simd_int_array;
+    for (int i = 0; i < N; ++i) {
+        expected = 20 + simd_int_array[i];
+        EXPECT_EQ(expected, result3[i]) << "Vectors result3 differ at index " << i;
+    }
+}
+
+TEST(int16_t, sub)
+{
+    const std::size_t N = 20;
+
+    simd::vector<std::int16_t, N> simd_int_array = {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20};
+    std::int16_t expected;
+
+    simd::vector<std::int16_t, N> result1 = simd_int_array - simd_int_array;
+    for (int i = 0; i < N; ++i) {
+        expected = simd_int_array[i] - simd_int_array[i];
+        EXPECT_EQ(expected, result1[i]) << "Vector result1 differ at index " << i;
+    }
+
+    simd::vector<std::int16_t, N> result2 = simd_int_array - 10;
+    for (int i = 0; i < N; ++i) {
+        expected = simd_int_array[i] - 10;
+        EXPECT_EQ(expected, result2[i]) << "Vector result2 differ at index " << i;
+    }
+
+    simd::vector<std::int16_t, N> result3 = 20 - simd_int_array;
+    for (int i = 0; i < N; ++i) {
+        expected = 20 - simd_int_array[i];
+        EXPECT_EQ(expected, result3[i]) << "Vectors result3 differ at index " << i;
+    }
+}
+
+TEST(int16_t, mul)
+{
+    const std::size_t N = 20;
+
+    simd::vector<std::int16_t, N> simd_int_array = {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20};
+    std::int16_t expected;
+
+    simd::vector<std::int16_t, N> result1 = simd_int_array * simd_int_array;
+    for (int i = 0; i < N; ++i) {
+        expected = simd_int_array[i] * simd_int_array[i];
+        EXPECT_EQ(expected, result1[i]) << "Vector expected1 and result1 differ at index " << i;
+    }
+
+    simd::vector<std::int16_t, N> result2 = simd_int_array * 10;
+    for (int i = 0; i < N; ++i) {
+        expected = simd_int_array[i] * 10;
+        EXPECT_EQ(expected, result2[i]) << "Vector expected2 and result2 differ at index " << i;
+    }
+
+    simd::vector<std::int16_t, N> result3 = 20 * simd_int_array;
+    for (int i = 0; i < N; ++i) {
+        expected = 20 * simd_int_array[i];
+        EXPECT_EQ(expected, result3[i]) << "Vector expected3 and result3 differ at index " << i;
+    }
+}
+
+TEST(int16_t, div)
+{
+    const std::size_t N = 20;
+
+    simd::vector<std::int16_t, N> simd_int_array = {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20};
+    std::int16_t expected;
+
+    simd::vector<std::int16_t, N> result1 = simd_int_array / simd_int_array;
+    for (int i = 0; i < N; ++i) {
+        expected = simd_int_array[i] / simd_int_array[i];
+        EXPECT_EQ(expected, result1[i]) << "Vector result1 differ at index " << i;
+    }
+
+    simd::vector<std::int16_t, N> result2 = simd_int_array / 10;
+    for (int i = 0; i < N; ++i) {
+        expected = simd_int_array[i] / 10;
+        EXPECT_EQ(expected, result2[i]) << "Vector result2 differ at index " << i;
+    }
+
+    simd::vector<std::int16_t, N> result3 = 20 / simd_int_array;
+    for (int i = 0; i < N; ++i) {
+        expected = 20 / simd_int_array[i];
+        EXPECT_EQ(expected, result3[i]) << "Vector result3 differ at index " << i;
+    }
+}
+
+//-----------------------------------------------------------------------------
+//  uint16_t
+//-----------------------------------------------------------------------------
+
+TEST(uint16_t, add)
+{
+    const std::size_t N = 20;
+
+    simd::vector<std::uint16_t, N> simd_int_array = {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20};
+    std::uint16_t expected;
+
+    simd::vector<std::uint16_t, N> result1 = simd_int_array + simd_int_array;
+
+    for (int i = 0; i < N; ++i) {
+        expected = simd_int_array[i] + simd_int_array[i];
+        EXPECT_EQ(expected, result1[i]) << "Vector result1 differ at index " << i;
+    }
+
+    simd::vector<std::uint16_t, N> result2 = simd_int_array + 10;
+    for (int i = 0; i < N; ++i) {
+        expected = simd_int_array[i] + 10;
+        EXPECT_EQ(expected, result2[i]) << "Vector result2 differ at index " << i;
+    }
+
+    simd::vector<std::uint16_t, N> result3 = 20 + simd_int_array;
+    for (int i = 0; i < N; ++i) {
+        expected = 20 + simd_int_array[i];
+        EXPECT_EQ(expected, result3[i]) << "Vectors result3 differ at index " << i;
+    }
+}
+
+TEST(uint16_t, sub)
+{
+    const std::size_t N = 20;
+
+    simd::vector<std::uint16_t, N> simd_int_array = {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20};
+    std::uint16_t expected;
+
+    simd::vector<std::uint16_t, N> result1 = simd_int_array - simd_int_array;
+    for (int i = 0; i < N; ++i) {
+        expected = simd_int_array[i] - simd_int_array[i];
+        EXPECT_EQ(expected, result1[i]) << "Vector result1 differ at index " << i;
+    }
+
+    simd::vector<std::uint16_t, N> result2 = simd_int_array - 10;
+    for (int i = 0; i < N; ++i) {
+        expected = simd_int_array[i] - 10;
+        EXPECT_EQ(expected, result2[i]) << "Vector result2 differ at index " << i;
+    }
+
+    simd::vector<std::uint16_t, N> result3 = 20 - simd_int_array;
+    for (int i = 0; i < N; ++i) {
+        expected = 20 - simd_int_array[i];
+        EXPECT_EQ(expected, result3[i]) << "Vectors result3 differ at index " << i;
+    }
+}
+
+TEST(uint16_t, mul)
+{
+    const std::size_t N = 20;
+
+    simd::vector<std::uint16_t, N> simd_int_array = {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20};
+    std::uint16_t expected;
+
+    simd::vector<std::uint16_t, N> result1 = simd_int_array * simd_int_array;
+    for (int i = 0; i < N; ++i) {
+        expected = simd_int_array[i] * simd_int_array[i];
+        EXPECT_EQ(expected, result1[i]) << "Vector expected1 and result1 differ at index " << i;
+    }
+
+    simd::vector<std::uint16_t, N> result2 = simd_int_array * 10;
+    for (int i = 0; i < N; ++i) {
+        expected = simd_int_array[i] * 10;
+        EXPECT_EQ(expected, result2[i]) << "Vector expected2 and result2 differ at index " << i;
+    }
+
+    simd::vector<std::uint16_t, N> result3 = 20 * simd_int_array;
+    for (int i = 0; i < N; ++i) {
+        expected = 20 * simd_int_array[i];
+        EXPECT_EQ(expected, result3[i]) << "Vector expected3 and result3 differ at index " << i;
+    }
+}
+
+TEST(uint16_t, div)
+{
+    const std::size_t N = 20;
+
+    simd::vector<std::uint16_t, N> simd_int_array = {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20};
+    std::uint16_t expected;
+
+    simd::vector<std::uint16_t, N> result1 = simd_int_array / simd_int_array;
+    for (int i = 0; i < N; ++i) {
+        expected = simd_int_array[i] / simd_int_array[i];
+        EXPECT_EQ(expected, result1[i]) << "Vector result1 differ at index " << i;
+    }
+
+    simd::vector<std::uint16_t, N> result2 = simd_int_array / 10;
+    for (int i = 0; i < N; ++i) {
+        expected = simd_int_array[i] / 10;
+        EXPECT_EQ(expected, result2[i]) << "Vector result2 differ at index " << i;
+    }
+
+    simd::vector<std::uint16_t, N> result3 = 20 / simd_int_array;
+    for (int i = 0; i < N; ++i) {
+        expected = 20 / simd_int_array[i];
+        EXPECT_EQ(expected, result3[i]) << "Vector result3 differ at index " << i;
+    }
+}
+
 int main(int argc, char* argv[])
 {
     print_supported_intructions();
