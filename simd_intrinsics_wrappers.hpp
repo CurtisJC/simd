@@ -195,8 +195,8 @@ namespace simd {
     template<typename T, typename V>
     requires (std::is_same_v<V, __m128i>)
     V mul(V const a, V const b) {
-        if constexpr (std::is_same_v<T, std::uint8_t>)       { return _mm_mul_epu8(a, b); } // TODO
-        else if constexpr (std::is_same_v<T, std::int8_t>)   { return _mm_mul_epi8(a, b); } // TODO
+        if constexpr (std::is_same_v<T, std::uint8_t>)       { return simd_mul_ui8(a, b); } // TODO
+        else if constexpr (std::is_same_v<T, std::int8_t>)   { return simd_mul_si8(a, b); } // TODO
         else if constexpr (std::is_same_v<T, std::uint16_t>) { return _mm_mul_epu16(a, b); } // TODO
         else if constexpr (std::is_same_v<T, std::int16_t>)  { return _mm_mullo_epi16(a, b); } // SSE2
         else if constexpr (std::is_same_v<T, std::uint32_t>) { return simd_mul_ui32(a, b); } // TODO
@@ -219,7 +219,7 @@ namespace simd {
     template<typename T, typename V>
     requires (std::is_same_v<V, __m256i>)
     V mul(V const a, V const b) {
-        if constexpr (std::is_same_v<T, std::uint8_t>)       { return _mm256_mul_epu8(a, b); } // TODO
+        if constexpr (std::is_same_v<T, std::uint8_t>)       { return simd_mul_ui8(a, b); } // TODO
         else if constexpr (std::is_same_v<T, std::int8_t>)   { return simd_mul_si8(a, b); } // TODO
         else if constexpr (std::is_same_v<T, std::uint16_t>) { return _mm256_mul_epu16(a, b); } // TODO
         else if constexpr (std::is_same_v<T, std::int16_t>)  { return _mm256_mullo_epi16(a, b); } // AVX2
@@ -246,7 +246,7 @@ namespace simd {
     template<typename T, typename V>
     requires (std::is_same_v<V, __m128i>)
     V div(V const a, V const b) {
-        if constexpr (std::is_same_v<T, std::uint8_t>)       { return _mm_div_epu8(a, b); }  // SSE - FAIL - SVML (Intel only)
+        if constexpr (std::is_same_v<T, std::uint8_t>)       { return simd_div_ui8(a, b); }  // SSE - FAIL - SVML (Intel only)
         else if constexpr (std::is_same_v<T, std::int8_t>)   { return simd_div_si8(a, b); }  // SSE - FAIL - SVML (Intel only)
         else if constexpr (std::is_same_v<T, std::uint16_t>) { return _mm_div_epu16(a, b); } // SSE - FAIL - SVML (Intel only)
         else if constexpr (std::is_same_v<T, std::int16_t>)  { return simd_div_si16(a, b); } // SSE - FAIL - SVML (Intel only)
@@ -270,7 +270,7 @@ namespace simd {
     template<typename T, typename V>
     requires (std::is_same_v<V, __m256i>)
     V div(V const a, V const b) {
-        if constexpr (std::is_same_v<T, std::uint8_t>)       { return _mm256_div_epu8(a, b); }  // AVX - FAIL - SVML (Intel only)
+        if constexpr (std::is_same_v<T, std::uint8_t>)       { return simd_div_ui8(a, b); }  // AVX - FAIL - SVML (Intel only)
         else if constexpr (std::is_same_v<T, std::int8_t>)   { return simd_div_si8(a, b); }  // AVX - FAIL - SVML (Intel only)
         else if constexpr (std::is_same_v<T, std::uint16_t>) { return _mm256_div_epu16(a, b); } // AVX - FAIL - SVML (Intel only)
         else if constexpr (std::is_same_v<T, std::int16_t>)  { return simd_div_si16(a, b); } // AVX - FAIL - SVML (Intel only)

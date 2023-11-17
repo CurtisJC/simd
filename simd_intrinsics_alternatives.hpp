@@ -81,6 +81,38 @@ namespace simd {
         return _mm256_loadu_si256((__m256i *)si8a.data());
     }
 
+    inline __m128i simd_mul_ui8(__m128i const& a, __m128i const& b) {
+        const std::size_t N = sizeof(__m128i) / sizeof(std::int8_t);
+        std::array<std::uint8_t, N> ui8a;
+        std::array<std::uint8_t, N> ui8b;
+
+        _mm_storeu_si128((__m128i *)ui8a.data(), a);
+        _mm_storeu_si128((__m128i *)ui8b.data(), b);
+
+        for (std::size_t i = 0; i < N; ++i)
+        {
+            ui8a[i] *= ui8b[i];
+        }
+
+        return _mm_loadu_si128((__m128i *)ui8a.data());
+    }
+
+    inline __m256i simd_mul_ui8(__m256i const& a, __m256i const& b) {
+        const std::size_t N = sizeof(__m256i) / sizeof(std::int8_t);
+        std::array<std::uint8_t, N> ui8a;
+        std::array<std::uint8_t, N> ui8b;
+
+        _mm256_storeu_si256((__m256i *)ui8a.data(), a);
+        _mm256_storeu_si256((__m256i *)ui8b.data(), b);
+
+        for (std::size_t i = 0; i < N; ++i)
+        {
+            ui8a[i] *= ui8b[i];
+        }
+
+        return _mm256_loadu_si256((__m256i *)ui8a.data());
+    }
+
     inline __m128i simd_mul_si32(__m128i const& a, __m128i const& b) {
     #ifdef __SSE4_1__
         return _mm_mullo_epi32(a, b);
@@ -138,6 +170,38 @@ namespace simd {
         }
 
         return _mm256_loadu_si256((__m256i *)si8a.data());
+    }
+
+    inline __m128i simd_div_ui8(__m128i const& a, __m128i const& b) {
+        const std::size_t N = sizeof(__m128i) / sizeof(std::int8_t);
+        std::array<std::uint8_t, N> ui8a;
+        std::array<std::uint8_t, N> ui8b;
+
+        _mm_storeu_si128((__m128i *)ui8a.data(), a);
+        _mm_storeu_si128((__m128i *)ui8b.data(), b);
+
+        for (std::size_t i = 0; i < N; ++i)
+        {
+            ui8a[i] /= ui8b[i];
+        }
+
+        return _mm_loadu_si128((__m128i *)ui8a.data());
+    }
+
+    inline __m256i simd_div_ui8(__m256i const& a, __m256i const& b) {
+        const std::size_t N = sizeof(__m256i) / sizeof(std::int8_t);
+        std::array<std::uint8_t, N> ui8a;
+        std::array<std::uint8_t, N> ui8b;
+
+        _mm256_storeu_si256((__m256i *)ui8a.data(), a);
+        _mm256_storeu_si256((__m256i *)ui8b.data(), b);
+
+        for (std::size_t i = 0; i < N; ++i)
+        {
+            ui8a[i] /= ui8b[i];
+        }
+
+        return _mm256_loadu_si256((__m256i *)ui8a.data());
     }
 
     inline __m128i simd_div_si16(__m128i const& a, __m128i const& b) {
