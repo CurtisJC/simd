@@ -27,7 +27,7 @@ namespace simd {
             return data[index];
         }
 
-        vector<T, N> operator+(vector& other)
+        vector<T, N> operator+(vector const& other)
         {
             vector<T, N> result;
             std::size_t i = 0;
@@ -72,7 +72,7 @@ namespace simd {
             return result;
         }
 
-        friend vector<T, N> operator+(T const& s, const vector& other)
+        friend vector<T, N> operator+(T const& s, vector const& other)
         {
             vector<T, N> result;
             std::size_t i = 0;
@@ -94,7 +94,7 @@ namespace simd {
             return result;
         }
 
-        vector<T, N> operator-(vector& other)
+        vector<T, N> operator-(vector const& other)
         {
             vector<T, N> result;
             std::size_t i = 0;
@@ -138,7 +138,7 @@ namespace simd {
             return result;
         }
 
-        friend vector<T, N> operator-(T const& s, const vector& other)
+        friend vector<T, N> operator-(T const& s, vector const& other)
         {
             vector<T, N> result;
             std::size_t i = 0;
@@ -160,7 +160,7 @@ namespace simd {
             return result;
         }
 
-        vector<T, N> operator*(vector& other)
+        vector<T, N> operator*(vector const& other)
         {
             vector<T, N> result;
             std::size_t i = 0;
@@ -204,7 +204,7 @@ namespace simd {
             return result;
         }
 
-        friend vector<T, N> operator*(T const& s, const vector& other)
+        friend vector<T, N> operator*(T const& s, vector const& other)
         {
             vector<T, N> result;
             std::size_t i = 0;
@@ -226,7 +226,7 @@ namespace simd {
             return result;
         }
 
-        vector<T, N> operator/(vector& other)
+        vector<T, N> operator/(vector const& other)
         {
             vector<T, N> result;
             std::size_t i = 0;
@@ -270,7 +270,7 @@ namespace simd {
             return result;
         }
 
-        friend vector<T, N> operator/(T const& s, const vector& other)
+        friend vector<T, N> operator/(T const& s, vector const& other)
         {
             vector<T, N> result;
             std::size_t i = 0;
@@ -292,7 +292,7 @@ namespace simd {
             return result;
         }
 
-        vector<T, N> operator==(vector& other)
+        vector<T, N> operator==(vector const& other)
         {
             vector<T, N> result;
             std::size_t i = 0;
