@@ -7,6 +7,8 @@
  */
 #pragma once
 
+#include <cstddef>
+#include <cstdint>
 #include <immintrin.h>
 
 namespace simd {
@@ -113,6 +115,22 @@ namespace simd {
         return _mm256_loadu_si256((__m256i *)ui8a.data());
     }
 
+    inline __m128i simd_mul_si16(__m128i const& a, __m128i const& b) {
+        return _mm_mullo_epi16(a, b);
+    }
+
+    inline __m256i simd_mul_si16(__m256i const& a, __m256i const& b) {
+        return _mm256_mullo_epi16(a, b);
+    }
+
+    inline __m128i simd_mul_ui16(__m128i const& a, __m128i const& b) {
+        return _mm_mullo_epi16(a, b);
+    }
+
+    inline __m256i simd_mul_ui16(__m256i const& a, __m256i const& b) {
+        return _mm256_mullo_epi16(a, b);
+    }
+
     inline __m128i simd_mul_si32(__m128i const& a, __m128i const& b) {
     #ifdef __SSE4_1__
         return _mm_mullo_epi32(a, b);
@@ -124,17 +142,35 @@ namespace simd {
     }
     
     inline __m256i simd_mul_si32(__m256i const& a, __m256i const& b) {
+    #ifdef __SSE4_1__
         return _mm256_mullo_epi32(a, b);
+    #else // SSE 2
+        //__m256i tmp1 = _mm256_mul_epu32(a,b); // mul 2,0
+        //__m256i tmp2 = _mm256_mul_epu32( _mm256_srli_si128(a,4), _mm256_srli_si128(b,4)); // mul 3,1
+        //return _mm256_unpacklo_epi32(_mm256_shuffle_epi32(tmp1, _MM_SHUFFLE (0,0,2,0)), _mm256_shuffle_epi32(tmp2, _MM_SHUFFLE (0,0,2,0))); // shuffle results to [63..0] and pack */
+        return a;
+    #endif // __SSE4_1__
     }
 
     inline __m128i simd_mul_ui32(__m128i const& a, __m128i const& b) {
-        // STUB
-        return a;
+    #ifdef __SSE4_1__
+        return _mm_mullo_epi32(a, b);
+    #else // SSE 2
+        __m128i tmp1 = _mm_mul_epu32(a,b); // mul 2,0
+        __m128i tmp2 = _mm_mul_epu32( _mm_srli_si128(a,4), _mm_srli_si128(b,4)); // mul 3,1
+        return _mm_unpacklo_epi32(_mm_shuffle_epi32(tmp1, _MM_SHUFFLE (0,0,2,0)), _mm_shuffle_epi32(tmp2, _MM_SHUFFLE (0,0,2,0))); // shuffle results to [63..0] and pack */
+    #endif // __SSE4_1__
     }
 
     inline __m256i simd_mul_ui32(__m256i const& a, __m256i const& b) {
-        // STUB
+    #ifdef __SSE4_1__
+        return _mm256_mullo_epi32(a, b);
+    #else // SSE 2
+        //__m128i tmp1 = _mm_mul_epu32(a,b); // mul 2,0
+        //__m128i tmp2 = _mm_mul_epu32( _mm_srli_si128(a,4), _mm_srli_si128(b,4)); // mul 3,1
+        //return _mm_unpacklo_epi32(_mm_shuffle_epi32(tmp1, _MM_SHUFFLE (0,0,2,0)), _mm_shuffle_epi32(tmp2, _MM_SHUFFLE (0,0,2,0))); // shuffle results to [63..0] and pack */
         return a;
+    #endif // __SSE4_1__
     }
 
 //-----------------------------------------------------------------------------
@@ -202,6 +238,14 @@ namespace simd {
         }
 
         return _mm256_loadu_si256((__m256i *)ui8a.data());
+    }
+
+    inline __m128i simd_div_ui16(__m128i const& a, __m128i const& b) {
+        return a;
+    }
+
+    inline __m256i simd_div_ui16(__m256i const& a, __m256i const& b) {
+        return a;
     }
 
     inline __m128i simd_div_si16(__m128i const& a, __m128i const& b) {

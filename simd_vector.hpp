@@ -1,23 +1,39 @@
 /*
  *  SIMD (single instruction multiple data) header library
  *
- *  Extension to std::array that supports vectorised operations using intrinsics.
+ *  Staticically allocated array type that supports vectorised operations using intrinsics.
  */
 #pragma once
 
 #include <array>
 #include <cstddef>
-#include <cstdint>
-//#include <stdfloat> // std::float32_t, std::float64_t
+#include <concepts>
 #include <immintrin.h>
 
 #include "simd_intrinsics_wrappers.hpp"
 
 namespace simd {
-    template <typename T, std::size_t N>
+    template <typename T, std::size_t N, typename Cont = T[N ? N : 1]>
+    requires ( std::is_arithmetic<T>::value == true )
     class vector {
     public:
-        std::array<T, N> data;
+        alignas(64) Cont data;
+
+    #ifdef __AVX2__
+        using vreg = std::conditional_t<std::is_integral_v<T>, __m256i, 
+                     std::conditional_t<std::is_same_v<T, std::float32_t>, __m256, __m256d>>;
+    #else
+        using vreg = std::conditional_t<std::is_integral_v<T>, __m128i, 
+                     std::conditional_t<std::is_same_v<T, std::float32_t>, __m128, __m128d>>;
+    #endif // __AVX2__
+
+        using iterator = T*;
+        using const_iterator = T const*;
+
+        inline iterator begin() noexcept { return data; }
+        inline const_iterator cbegin() const noexcept { return data; }
+        inline iterator end() noexcept { return data + N; }
+        inline const_iterator cend() const noexcept { data + N; }
 
         T& operator[](std::size_t index) {
             return data[index];
@@ -32,15 +48,9 @@ namespace simd {
             vector<T, N> result;
             std::size_t i = 0;
 
-        #ifdef __AVX2__
-            if constexpr ( (sizeof(__m256i) / sizeof(T)) > N )
-                simd_loop<__m256i>(i, data, other.data, result.data, [](__m256i a, __m256i b){ return add<T, __m256i>(a, b); });
-            else if constexpr ( (sizeof(__m128i) / sizeof(T)) > N )
-                simd_loop<__m128i>(i, data, other.data, result.data, [](__m128i a, __m128i b){ return add<T, __m128i>(a, b); });
-        #else
-            if constexpr ( (sizeof(__m128i) / sizeof(T)) > N )
-                simd_loop<__m128i>(i, data, other.data, result.data, [](__m128i a, __m128i b){ return add<T, __m128i>(a, b); });
-        #endif // __AVX2__
+            if constexpr ( (sizeof(vreg) / sizeof(T)) < N ) {
+                simd_loop<vreg>(i, data, other.data, result.data, [](vreg a, vreg b){ return add<T, vreg>(a, b); });
+            }
 
             for (; i < N; i++)
             {
@@ -55,15 +65,9 @@ namespace simd {
             vector<T, N> result;
             std::size_t i = 0;
 
-        #ifdef __AVX2__
-            if constexpr ( (sizeof(__m256i) / sizeof(T)) > N )
-                simd_loop_scalar<__m256i>(i, s, data, result.data, [](__m256i a, __m256i b){ return add<T, __m256i>(a, b); });
-            else if constexpr ( (sizeof(__m128i) / sizeof(T)) > N )
-                simd_loop_scalar<__m128i>(i, s, data, result.data, [](__m128i a, __m128i b){ return add<T, __m128i>(a, b); });
-        #else
-            if constexpr ( (sizeof(__m128i) / sizeof(T)) > N )
-                simd_loop_scalar<__m128i>(i, s, data, result.data, [](__m128i a, __m128i b){ return add<T, __m128i>(a, b); });
-        #endif // __AVX2__
+            if constexpr ( (sizeof(vreg) / sizeof(T)) < N ) {
+                simd_loop_scalar<vreg>(i, s, data, result.data, [](vreg a, vreg b){ return add<T, vreg>(a, b); });
+            }
 
             for (; i < N; i++)
             {
@@ -77,15 +81,9 @@ namespace simd {
             vector<T, N> result;
             std::size_t i = 0;
 
-        #ifdef __AVX2__
-            if constexpr ( (sizeof(__m256i) / sizeof(T)) > N )
-                simd_loop_scalar<__m256i>(i, s, other.data, result.data, [](__m256i a, __m256i b){ return add<T, __m256i>(a, b); });
-            else if constexpr ( (sizeof(__m128i) / sizeof(T)) > N )
-                simd_loop_scalar<__m128i>(i, s, other.data, result.data, [](__m128i a, __m128i b){ return add<T, __m128i>(a, b); });
-        #else
-            if constexpr ( (sizeof(__m128i) / sizeof(T)) > N )
-                simd_loop_scalar<__m128i>(i, s, other.data, result.data, [](__m128i a, __m128i b){ return add<T, __m128i>(a, b); });
-        #endif // __AVX2__
+            if constexpr ( (sizeof(vreg) / sizeof(T)) < N ) {
+                simd_loop_scalar<vreg>(i, s, other.data, result.data, [](vreg a, vreg b){ return add<T, vreg>(a, b); });
+            }
 
             for (; i < N; i++)
             {
@@ -99,15 +97,9 @@ namespace simd {
             vector<T, N> result;
             std::size_t i = 0;
 
-        #ifdef __AVX2__
-            if constexpr ( (sizeof(__m256i) / sizeof(T)) > N )
-                simd_loop<__m256i>(i, data, other.data, result.data, [](__m256i a, __m256i b){ return sub<T, __m256i>(a, b); });
-            else if constexpr ( (sizeof(__m128i) / sizeof(T)) > N )
-                simd_loop<__m128i>(i, data, other.data, result.data, [](__m128i a, __m128i b){ return sub<T, __m128i>(a, b); });
-        #else
-            if constexpr ( (sizeof(__m128i) / sizeof(T)) > N )
-                simd_loop<__m128i>(i, data, other.data, result.data, [](__m128i a, __m128i b){ return sub<T, __m128i>(a, b); });
-        #endif // __AVX2__
+            if constexpr ( (sizeof(vreg) / sizeof(T)) < N ) {
+                simd_loop<vreg>(i, data, other.data, result.data, [](vreg a, vreg b){ return sub<T, vreg>(a, b); });
+            }
 
             for (; i < N; i++)
             {
@@ -121,15 +113,9 @@ namespace simd {
             vector<T, N> result;
             std::size_t i = 0;
 
-        #ifdef __AVX2__
-            if constexpr ( (sizeof(__m256i) / sizeof(T)) > N )
-                simd_loop_scalar<__m256i>(i, s, data, result.data, [](__m256i a, __m256i b){ return sub<T, __m256i>(a, b); });
-            else if constexpr ( (sizeof(__m128i) / sizeof(T)) > N )
-                simd_loop_scalar<__m128i>(i, s, data, result.data, [](__m128i a, __m128i b){ return sub<T, __m128i>(a, b); });
-        #else
-            if constexpr ( (sizeof(__m128i) / sizeof(T)) > N )
-                simd_loop_scalar<__m128i>(i, s, data, result.data, [](__m128i a, __m128i b){ return sub<T, __m128i>(a, b); });
-        #endif // __AVX2__
+            if constexpr ( (sizeof(vreg) / sizeof(T)) < N ) {
+                simd_loop_scalar<vreg>(i, s, data, result.data, [](vreg a, vreg b){ return sub<T, vreg>(a, b); });
+            }
 
             for (; i < N; i++)
             {
@@ -143,15 +129,9 @@ namespace simd {
             vector<T, N> result;
             std::size_t i = 0;
 
-        #ifdef __AVX2__
-            if constexpr ( (sizeof(__m256i) / sizeof(T)) > N )
-                simd_loop_scalar<__m256i>(i, s, other.data, result.data, [](__m256i a, __m256i b){ return sub<T, __m256i>(a, b); });
-            else if constexpr ( (sizeof(__m128i) / sizeof(T)) > N )
-                simd_loop_scalar<__m128i>(i, s, other.data, result.data, [](__m128i a, __m128i b){ return sub<T, __m128i>(a, b); });
-        #else
-            if constexpr ( (sizeof(__m128i) / sizeof(T)) > N )
-                simd_loop_scalar<__m128i>(i, s, other.data, result.data, [](__m128i a, __m128i b){ return sub<T, __m128i>(a, b); });
-        #endif // __AVX2__
+            if constexpr ( (sizeof(vreg) / sizeof(T)) < N ) {
+                simd_loop_scalar<vreg>(i, s, other.data, result.data, [](vreg a, vreg b){ return sub<T, vreg>(a, b); });
+            }
 
             for (; i < N; i++)
             {
@@ -165,15 +145,9 @@ namespace simd {
             vector<T, N> result;
             std::size_t i = 0;
 
-        #ifdef __AVX2__
-            if constexpr ( (sizeof(__m256i) / sizeof(T)) > N )
-                simd_loop<__m256i>(i, data, other.data, result.data, [](__m256i a, __m256i b){ return mul<T, __m256i>(a, b); });
-            else if constexpr ( (sizeof(__m128i) / sizeof(T)) > N )
-                simd_loop<__m128i>(i, data, other.data, result.data, [](__m128i a, __m128i b){ return mul<T, __m128i>(a, b); });
-        #else
-            if constexpr ( (sizeof(__m128i) / sizeof(T)) > N )
-                simd_loop<__m128i>(i, data, other.data, result.data, [](__m128i a, __m128i b){ return mul<T, __m128i>(a, b); });
-        #endif // __AVX2__
+            if constexpr ( (sizeof(vreg) / sizeof(T)) < N ) {
+                simd_loop<vreg>(i, data, other.data, result.data, [](vreg a, vreg b){ return mul<T, vreg>(a, b); });
+            }
 
             for (; i < N; i++)
             {
@@ -187,15 +161,9 @@ namespace simd {
             vector<T, N> result;
             std::size_t i = 0;
 
-        #ifdef __AVX2__
-            if constexpr ( (sizeof(__m256i) / sizeof(T)) > N )
-                simd_loop_scalar<__m256i>(i, s, data, result.data, [](__m256i a, __m256i b){ return mul<T, __m256i>(a, b); });
-            else if constexpr ( (sizeof(__m128i) / sizeof(T)) > N )
-                simd_loop_scalar<__m128i>(i, s, data, result.data, [](__m128i a, __m128i b){ return mul<T, __m128i>(a, b); });
-        #else
-            if constexpr ( (sizeof(__m128i) / sizeof(T)) > N )
-                simd_loop_scalar<__m128i>(i, s, data, result.data, [](__m128i a, __m128i b){ return mul<T, __m128i>(a, b); });
-        #endif // __AVX2__
+            if constexpr ( (sizeof(vreg) / sizeof(T)) < N ) {
+                simd_loop_scalar<vreg>(i, s, data, result.data, [](vreg a, vreg b){ return mul<T, vreg>(a, b); });
+            }
 
             for (; i < N; i++)
             {
@@ -209,15 +177,9 @@ namespace simd {
             vector<T, N> result;
             std::size_t i = 0;
 
-        #ifdef __AVX2__
-            if constexpr ( (sizeof(__m256i) / sizeof(T)) > N )
-                simd_loop_scalar<__m256i>(i, s, other.data, result.data, [](__m256i a, __m256i b){ return mul<T, __m256i>(a, b); });
-            else if constexpr ( (sizeof(__m128i) / sizeof(T)) > N )
-                simd_loop_scalar<__m128i>(i, s, other.data, result.data, [](__m128i a, __m128i b){ return mul<T, __m128i>(a, b); });
-        #else
-            if constexpr ( (sizeof(__m128i) / sizeof(T)) > N )
-                simd_loop_scalar<__m128i>(i, s, other.data, result.data, [](__m128i a, __m128i b){ return mul<T, __m128i>(a, b); });
-        #endif // __AVX2__
+            if constexpr ( (sizeof(vreg) / sizeof(T)) < N ) {
+                simd_loop_scalar<vreg>(i, s, other.data, result.data, [](vreg a, vreg b){ return mul<T, vreg>(a, b); });
+            }
 
             for (; i < N; i++)
             {
@@ -231,15 +193,9 @@ namespace simd {
             vector<T, N> result;
             std::size_t i = 0;
 
-        #ifdef __AVX2__
-            if constexpr ( (sizeof(__m256i) / sizeof(T)) > N )
-                simd_loop<__m256i>(i, data, other.data, result.data, [](__m256i a, __m256i b){ return div<T, __m256i>(a, b); });
-            else if constexpr ( (sizeof(__m128i) / sizeof(T)) > N )
-                simd_loop<__m128i>(i, data, other.data, result.data, [](__m128i a, __m128i b){ return div<T, __m128i>(a, b); });
-        #else
-            if constexpr ( (sizeof(__m128i) / sizeof(T)) > N )
-                simd_loop<__m128i>(i, data, other.data, result.data, [](__m128i a, __m128i b){ return div<T, __m128i>(a, b); });
-        #endif // __AVX2__
+            if constexpr ( (sizeof(vreg) / sizeof(T)) < N ) {
+                simd_loop<vreg>(i, data, other.data, result.data, [](vreg a, vreg b){ return div<T, vreg>(a, b); });
+            }
 
             for (; i < N; i++)
             {
@@ -253,15 +209,9 @@ namespace simd {
             vector<T, N> result;
             std::size_t i = 0;
 
-        #ifdef __AVX2__
-            if constexpr ( (sizeof(__m256i) / sizeof(T)) > N )
-                simd_loop_scalar<__m256i>(i, s, data, result.data, [](__m256i a, __m256i b){ return div<T, __m256i>(a, b); });
-            else if constexpr ( (sizeof(__m128i) / sizeof(T)) > N )
-                simd_loop_scalar<__m128i>(i, s, data, result.data, [](__m128i a, __m128i b){ return div<T, __m128i>(a, b); });
-        #else
-            if constexpr ( (sizeof(__m128i) / sizeof(T)) > N )
-                simd_loop_scalar<__m128i>(i, s, data, result.data, [](__m128i a, __m128i b){ return div<T, __m128i>(a, b); });
-        #endif // __AVX2__
+            if constexpr ( (sizeof(vreg) / sizeof(T)) < N ) {
+                simd_loop_scalar<vreg>(i, s, data, result.data, [](vreg a, vreg b){ return div<T, vreg>(a, b); });
+            }
 
             for (; i < N; i++)
             {
@@ -275,15 +225,9 @@ namespace simd {
             vector<T, N> result;
             std::size_t i = 0;
 
-        #ifdef __AVX2__
-            if constexpr ( (sizeof(__m256i) / sizeof(T)) > N )
-                simd_loop_scalar<__m256i>(i, s, other.data, result.data, [](__m256i a, __m256i b){ return div<T, __m256i>(a, b); });
-            else if constexpr ( (sizeof(__m128i) / sizeof(T)) > N )
-                simd_loop_scalar<__m128i>(i, s, other.data, result.data, [](__m128i a, __m128i b){ return div<T, __m128i>(a, b); });
-        #else
-            if constexpr ( (sizeof(__m128i) / sizeof(T)) > N )
-                simd_loop_scalar<__m128i>(i, s, other.data, result.data, [](__m128i a, __m128i b){ return div<T, __m128i>(a, b); });
-        #endif // __AVX2__
+            if constexpr ( (sizeof(vreg) / sizeof(T)) < N ) {
+                simd_loop_scalar<vreg>(i, s, other.data, result.data, [](vreg a, vreg b){ return div<T, vreg>(a, b); });
+            }
 
             for (; i < N; i++)
             {
@@ -297,15 +241,9 @@ namespace simd {
             vector<T, N> result;
             std::size_t i = 0;
 
-        #ifdef __AVX2__
-            if constexpr ( (sizeof(__m256i) / sizeof(T)) > N )
-                simd_loop<__m256i>(i, data, other.data, result.data, [](__m256i a, __m256i b){ return cmpeq<T, __m256i>(a, b); });
-            else if constexpr ( (sizeof(__m128i) / sizeof(T)) > N )
-                simd_loop<__m128i>(i, data, other.data, result.data, [](__m128i a, __m128i b){ return cmpeq<T, __m128i>(a, b); });
-        #else
-            if constexpr ( (sizeof(__m128i) / sizeof(T)) > N )
-                simd_loop<__m128i>(i, data, other.data, result.data, [](__m128i a, __m128i b){ return cmpeq<T, __m128i>(a, b); });
-        #endif // __AVX2__
+            if constexpr ( (sizeof(vreg) / sizeof(T)) < N ) {
+                simd_loop<vreg>(i, data, other.data, result.data, [](vreg a, vreg b){ return cmpeq<T, vreg>(a, b); });
+            }
 
             for (; i < N; i++)
             {
@@ -316,27 +254,35 @@ namespace simd {
 
     private:
         template<typename V>
-        static void simd_loop(std::size_t &i, std::array<T, N> const& a, std::array<T, N> const& b, std::array<T, N>& c, auto lamba_op)
+        static void simd_loop(std::size_t &i, T const a[N], T const b[N], T c[N], auto lamba_op)
         {
             const std::size_t VN = sizeof(V)/sizeof(T);
             if constexpr (N >= VN) {
-                for (; i < N - VN; i += VN) {
-                    V va = load<V>(&a[i]);
-                    V vb = load<V>(&b[i]);
-                    store<V>(&c[i], lamba_op(va, vb));
+                V va1, va2;
+                V vb1, vb2;
+                for (; i < N - (VN * 4); i += (VN * 4)) {
+                    va1 = load<V>(&a[i]);
+                    va2 = load<V>(&a[i+VN]);
+                    vb1 = load<V>(&b[i]);
+                    vb2 = load<V>(&b[i+VN]);
+                    store<V>(&c[i], lamba_op(va1, vb1));
+                    store<V>(&c[i+VN], lamba_op(va2, vb2));
                 }
             }
         }
 
         template<typename V>
-        static void simd_loop_scalar(std::size_t &i, T const a, std::array<T, N> const& b, std::array<T, N> &c, auto lamba_op)
+        static void simd_loop_scalar(std::size_t &i, T const a, T const b[N], T c[N], auto lamba_op)
         {
             const std::size_t VN = sizeof(V)/sizeof(T);
             if constexpr (N >= VN) {
                 V va = set<T, V>(a);
-                for (; i < N - VN; i += VN) {
-                    V vb = load<V>(&b[i]);
-                    store<V>(&c[i], lamba_op(va, vb));
+                V vb1, vb2;
+                for (; i < N - (VN * 2); i += (VN * 2)) {
+                    vb1 = load<V>(&b[i]);
+                    vb2 = load<V>(&b[i+VN]);
+                    store<V>(&c[i], lamba_op(va, vb1));
+                    store<V>(&c[i+VN], lamba_op(va, vb2));
                 }
             }
         }
