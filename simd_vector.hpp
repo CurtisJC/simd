@@ -20,10 +20,10 @@ namespace simd {
         alignas(64) Cont data;
 
     #ifdef __AVX2__
-        using vreg = std::conditional_t<std::is_integral_v<T>, __m256i, 
+        using vreg = std::conditional_t<std::is_integral_v<T>, __m256i,
                      std::conditional_t<std::is_same_v<T, std::float32_t>, __m256, __m256d>>;
     #else
-        using vreg = std::conditional_t<std::is_integral_v<T>, __m128i, 
+        using vreg = std::conditional_t<std::is_integral_v<T>, __m128i,
                      std::conditional_t<std::is_same_v<T, std::float32_t>, __m128, __m128d>>;
     #endif // __AVX2__
 
