@@ -1,9 +1,12 @@
 # simd
 simd intrinsics header library
 
+> [!NOTE]
+> This library is for my learning purposes only - I don't expect it to be more performant than std::valarray, for example. My focus here is on learning about intrinsics and creating a scalar/vector/matrix library that utilises them...
+
 Compile with `-march=native`
 
-A naive vector class has been implemented which loops through the elements of the vector performing operations through simd instructions. This could be inefficient as each operation  performed requires an additional loop on the data. It would be worth investigating a means store a number of intended operations to perform then do so in a single loop.
+A naive vector class has been implemented which loops through the elements of the vector performing operations through simd instructions. This could be inefficient as each operation performed requires an additional loop on the data. It would be worth investigating a means store a number of intended operations to perform then do so in a single loop.
 
 ### example usage
 
